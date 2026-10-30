@@ -1,0 +1,2 @@
+"""Hadithi application package."""
+

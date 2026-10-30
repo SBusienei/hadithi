@@ -1,0 +1,85 @@
+{
+  "legend_id": "luanda-magere",
+  "review_status": "approved_with_optional_retellings",
+  "editorial_position": "Present Luanda Magere as a Luo oral-tradition hero. Attribute supernatural, biographical, battle, and shrine claims to their tellings rather than asserting them as verified history.",
+  "sources": [
+    {
+      "id": "nmk-invincible",
+      "title": "Luanda Magere: The Invincible (Luo community)",
+      "organization": "National Museums of Kenya / Google Arts & Culture",
+      "url": "https://artsandculture.google.com/asset/luanda-magere-the-invincible-luo-community/vwG2spaSOYrqVA",
+      "role": "Core museum-associated oral-tradition narrative",
+      "approval": "approved_core"
+    },
+    {
+      "id": "nmk-project-credits",
+      "title": "Luanda Magere digital story project credits",
+      "organization": "National Museums of Kenya / Google Arts & Culture",
+      "url": "https://artsandculture.google.com/story/3wVxPc0dTAt5IQ",
+      "role": "Institutional provenance and project contributors",
+      "approval": "approved_core"
+    },
+    {
+      "id": "kisumu-shrine",
+      "title": "Luanda Magere Shrine",
+      "organization": "Visit Kisumu / Kisumu County Government",
+      "url": "https://visitkisumu.go.ke/luanda-magere-site/",
+      "role": "Present-day cultural-site recognition, explicitly framed as folklore",
+      "approval": "approved_core"
+    },
+    {
+      "id": "uon-hero-thesis",
+      "title": "Sifa Za Mashujaa Na Umuhimu Wao Kwa Jamii Zao: Ulinganifu Wa Fumo Liyongo Na Lwanda Magere",
+      "organization": "University of Nairobi",
+      "url": "https://erepository.uonbi.ac.ke/items/9fd10434-175e-4550-beca-d604259279b8",
+      "role": "Academic context for heroic traditions and their social functions",
+      "approval": "approved_core"
+    },
+    {
+      "id": "uon-orature-gender",
+      "title": "Symbolising Orature, Heroism and Gender Relations in Okoiti's Omtatah Lwanda Magere",
+      "organization": "University of Nairobi journal platform",
+      "url": "https://uonjournals.uonbi.ac.ke/index.php/literature/article/view/1314",
+      "role": "Critical interpretation of heroism, gender, folklore, and literary adaptation",
+      "approval": "approved_core"
+    },
+    {
+      "id": "standard-digitisation",
+      "title": "Luanda Magere goes digital: Saving a nation's cultural heritage",
+      "organization": "The Standard",
+      "url": "https://www.standardmedia.co.ke/entertainment/news/article/2001442482/luanda-magere-goes-digital-saving-a-nations-cultural-heritage",
+      "role": "Reporting on the Kenyan heritage digitisation initiative",
+      "approval": "approved_core"
+    },
+    {
+      "id": "paulines-retelling",
+      "title": "Lwanda Magere",
+      "organization": "Paulines Publications Africa",
+      "url": "https://shop.paulinesafrica.org/product/-Lwanda-Magere-",
+      "role": "Kenyan-published literary retelling and further-reading reference",
+      "approval": "optional_retelling"
+    },
+    {
+      "id": "jhia-cultural-essay",
+      "title": "The Church, Sect & Luo Indigenous Culture",
+      "organization": "Jesuit Historical Institute in Africa",
+      "url": "https://www.jhia.ac.ke/newsletter/the-church-sect-luo-indigenous-culture/",
+      "role": "Detailed first-person cultural retelling with telling-specific biographical details",
+      "approval": "optional_retelling"
+    }
+  ],
+  "variants_to_preserve": [
+    "Luanda and Lwanda are both established spellings.",
+    "Opponents are described as Nandi in museum-associated accounts and more broadly as jo Lang'o or Kalenjin in another telling.",
+    "The wife is variously described as a peace offering, compensation, or a deliberately planted spy.",
+    "The drought and elders' dreams appear in some tellings but not others.",
+    "The shrine is a recognized cultural site, while identification of its stone as Magere's transformed body remains a traditional claim.",
+    "Modern scholarship questions simplistic betrayal narratives and examines gender representation."
+  ],
+  "reuse_rules": [
+    "Paraphrase across multiple sources instead of copying source wording.",
+    "Do not reuse illustrations, animation, photographs, or book artwork without permission.",
+    "Attribute supernatural and shrine claims to oral tradition.",
+    "Seek review from a Luo cultural practitioner or Sidho/Kano community representative before publishing sensitive ritual details."
+  ]
+}

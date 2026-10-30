@@ -1,0 +1,81 @@
+{
+  "legend_id": "la-llorona",
+  "review_status": "research_draft_requires_cultural_review",
+  "editorial_position": "Present La Llorona as a living family of oral traditions rather than one fixed biography. Identify the region and source behind each telling, attribute supernatural and origin claims, and avoid reducing the figure to a generic horror character.",
+  "sources": [
+    {
+      "id": "unam-memory-water",
+      "title": "La Llorona: entre el mito, la memoria y el agua",
+      "organization": "UNAM Global / Universidad Nacional Autónoma de México",
+      "url": "https://unamglobal.unam.mx/global_revista/la-llorona-unam-mito-memoria-xochimilco/",
+      "role": "Mexican anthropological framing of water, memory, social meaning, syncretic interpretations, and regional variants",
+      "approval": "approved_core"
+    },
+    {
+      "id": "unam-tlalocan-variants",
+      "title": "La Llorona",
+      "organization": "Tlalocan / Instituto de Investigaciones Filológicas, UNAM",
+      "url": "https://revistas-filologicas.unam.mx/tlalocan/index.php/tl/article/download/327/325",
+      "role": "Historical-geographic study based on more than one hundred collected Mexican versions",
+      "approval": "approved_core"
+    },
+    {
+      "id": "smithsonian-ay-mis-hijos",
+      "title": "¡Ay, mis hijos!, a Llorona Story",
+      "organization": "Smithsonian Latino Center",
+      "url": "https://www.smithsonianmag.com/blogs/smithsonian-latino-center/2018/10/23/ay-mis-hijos-llorona-story/",
+      "role": "Intergenerational U.S. Latino retelling that explicitly recognizes multiple plots, languages, and cultural transformations",
+      "approval": "approved_core"
+    },
+    {
+      "id": "guatemala-semetabaj",
+      "title": "Conversatorio sobre 'La Llorona' en San Andrés Semetabaj",
+      "organization": "Ministerio de Cultura y Deportes de Guatemala",
+      "url": "https://noticias.mcd.gob.gt/2025/06/18/conversatorio-sobre-la-llorona-en-san-andres-semetabaj/",
+      "role": "Documentation of a living, intergenerational La Llorona tradition in San Andrés Semetabaj, Sololá",
+      "approval": "approved_core"
+    },
+    {
+      "id": "jfr-perez-review",
+      "title": "Review of There Was a Woman: La Llorona from Folklore to Popular Culture",
+      "organization": "Journal of Folklore Research Reviews / Indiana University",
+      "url": "https://scholarworks.iu.edu/journals/index.php/jfrr/article/view/39680",
+      "role": "Scholarly review of La Llorona's continuing reinvention in Mexican, Chicano, literary, and popular-cultural contexts",
+      "approval": "approved_core"
+    },
+    {
+      "id": "wikipedia-la-llorona",
+      "title": "La Llorona",
+      "organization": "Wikipedia contributors",
+      "url": "https://en.wikipedia.org/wiki/La_Llorona",
+      "role": "Community-edited overview used for broad geographic framing, terminology, interpretive approaches, and discovery of additional cited works",
+      "approval": "approved_core"
+    },
+    {
+      "id": "texas-border-retelling",
+      "title": "La Llorona",
+      "organization": "Handbook of Texas / Texas State Historical Association",
+      "url": "https://www.tshaonline.org/handbook/entries/la-llorona",
+      "role": "One documented U.S.-Mexico border-region telling and its cautionary social use",
+      "approval": "optional_retelling"
+    }
+  ],
+  "variants_to_preserve": [
+    "Mexican collections contain many versions; no single plot should be presented as the definitive story.",
+    "Some tellings say the children were deliberately drowned, while others describe loss or disappearance near water.",
+    "UNAM reports an Otomí telling from the Valle del Mezquital in which the figure rewards generosity with water rather than acting as a vengeful ghost.",
+    "Guatemalan communities preserve their own locally transmitted versions and should not be treated as copies of one Mexican narrative.",
+    "U.S. Latino and Chicano retellings move between Spanish, English, Spanglish, and Indigenous-language contexts.",
+    "Connections to Cihuacoatl, Tonantzin, La Malinche, colonial guilt, or one historical woman are interpretations and variant lineages, not settled origins.",
+    "Contemporary art and literature may reinterpret La Llorona through resistance, migration, gender, grief, or environmental memory."
+  ],
+  "reuse_rules": [
+    "Always identify a telling's region or interpretive tradition when that information is available.",
+    "Wikipedia may be included in generated context, but answers must identify it as a community-edited overview and must not repeat statements marked as needing citation.",
+    "Do not present infanticide, suicide, a named partner, or a colonial identity as universal details.",
+    "Attribute pre-Hispanic and colonial-origin theories to the scholars or institutions proposing them.",
+    "Do not reuse film stills, commercial character designs, illustrations, songs, or photographs without permission.",
+    "Avoid jump-scare framing, graphic violence, and language that reduces Latin American traditions to exotic horror.",
+    "Seek review from Mexican and, where represented, Guatemalan or Chicano cultural practitioners before publishing the final experience."
+  ]
+}

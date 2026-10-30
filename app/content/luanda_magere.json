@@ -1,0 +1,74 @@
+{
+  "title": "Luanda Magere",
+  "alternate_title": "Lwanda Magere",
+  "community": "Luo oral tradition",
+  "place": "Kano Plains",
+  "reading_time": "6 minute read",
+  "editorial_note": "Hadithi presents this as a living oral tradition. Supernatural events and precise biographical details are attributed to their tellings rather than stated as verified history.",
+  "chapters": [
+    {
+      "id": "remembered-hero",
+      "eyebrow": "A remembered hero",
+      "title": "Strength in the Kano Plains",
+      "paragraphs": [
+        "Across Luo oral tradition, Luanda Magere is remembered as a powerful community hero associated with the Sidho clan and the Kano Plains.",
+        "Academic work treats the story as part of a wider heroic tradition: a way communities discuss courage, leadership, conflict, identity, and the qualities expected of those remembered as heroes."
+      ],
+      "source_ids": ["nmk-invincible", "uon-hero-thesis"]
+    },
+    {
+      "id": "invulnerability",
+      "eyebrow": "A widely told version",
+      "title": "The warrior whose strength had a secret",
+      "paragraphs": [
+        "A museum-associated telling describes Magere's body as stone-like and resistant to ordinary weapons. In that version, his vulnerability existed not in his body but in his shadow.",
+        "The same telling places him in conflict with Nandi opponents and says that knowledge of this vulnerability eventually reached them through his Nandi wife."
+      ],
+      "source_ids": ["nmk-invincible"]
+    },
+    {
+      "id": "fall",
+      "eyebrow": "Oral tradition recounts",
+      "title": "The shadow and the spear",
+      "paragraphs": [
+        "In the best-known ending, an opponent waits for the right moment and drives a spear into Magere's shadow. The story says he falls, and that his body becomes stone.",
+        "A Kisumu County cultural-tourism page records the shrine and stone associated with this tradition. Hadithi treats the identification as a living cultural belief, not as a geological or historical finding."
+      ],
+      "source_ids": ["nmk-invincible", "kisumu-shrine"]
+    },
+    {
+      "id": "meaning",
+      "eyebrow": "More than one moral",
+      "title": "Heroism, betrayal, and who gets blamed",
+      "paragraphs": [
+        "Some retellings emphasize betrayal, secrecy, and the defence of a community. Modern scholarship also asks how adaptations portray masculinity, marriage, and women.",
+        "That matters because the wife is often reduced to a simple villain even though versions differ about why the marriage happened and what pressures shaped her actions. Hadithi keeps those interpretations open rather than assigning one final moral."
+      ],
+      "source_ids": ["uon-orature-gender", "uon-hero-thesis"]
+    }
+  ],
+  "variants": [
+    {
+      "label": "Name",
+      "text": "Luanda Magere appears in National Museums and county materials; Lwanda Magere is common in University of Nairobi scholarship and published adaptations."
+    },
+    {
+      "label": "Opponents",
+      "text": "The approved museum-associated narrative identifies Nandi opponents. Broader cultural retellings may use jo Lang'o or Kalenjin terminology."
+    },
+    {
+      "label": "Marriage",
+      "text": "The woman is described variously as a peace offering, compensation intended to end conflict, or a deliberately planted spy."
+    },
+    {
+      "label": "Aftermath",
+      "text": "The extended museum-associated telling includes drought, dreams, prayers, and ritual responses. The shorter county account does not include every one of these episodes."
+    }
+  ],
+  "reflection_questions": [
+    "Why might different communities preserve different details of the same story?",
+    "How does the story define strength, and where does it locate vulnerability?",
+    "How might the meaning change when the wife's perspective is considered?",
+    "Which parts describe cultural meaning, and which parts make supernatural claims?"
+  ]
+}

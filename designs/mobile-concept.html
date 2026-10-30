@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mizizi - Mobile concept</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #17110c;
+      --paper: #fff8e8;
+      --sun: #f2a51a;
+      --ember: #c34b2c;
+      --leaf: #275c47;
+      --mist: #dbcda8;
+      --night: #171b2f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 48px 24px;
+      color: var(--paper);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(242, 165, 26, .18), transparent 28%),
+        radial-gradient(circle at 88% 78%, rgba(39, 92, 71, .35), transparent 32%),
+        var(--night);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header {
+      max-width: 1180px;
+      margin: 0 auto 32px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: clamp(38px, 7vw, 72px);
+      line-height: .95;
+      letter-spacing: -.04em;
+    }
+
+    header p {
+      max-width: 660px;
+      margin: 16px 0 0;
+      color: #ded6c4;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .tag {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 16px;
+      color: #ffd783;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .screens {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(240px, 1fr));
+      gap: 24px;
+      max-width: 1180px;
+      margin: 0 auto;
+      overflow-x: auto;
+      padding-bottom: 16px;
+    }
+
+    .phone {
+      position: relative;
+      min-width: 260px;
+      height: 570px;
+      overflow: hidden;
+      color: var(--ink);
+      background: var(--paper);
+      border: 7px solid #0d0f19;
+      border-radius: 34px;
+      box-shadow: 0 24px 55px rgba(0, 0, 0, .42);
+    }
+
+    .phone::before {
+      position: absolute;
+      z-index: 10;
+      top: 8px;
+      left: 50%;
+      width: 72px;
+      height: 20px;
+      content: "";
+      transform: translateX(-50%);
+      background: #0d0f19;
+      border-radius: 14px;
+    }
+
+    .status {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      padding: 13px 18px 8px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .content { padding: 12px 18px 78px; }
+
+    .eyebrow {
+      color: var(--ember);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 5px 0 4px;
+      font-family: Georgia, serif;
+      font-size: 27px;
+      line-height: 1.05;
+    }
+
+    .muted {
+      margin: 0;
+      color: #73695b;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .search {
+      margin: 18px 0;
+      padding: 12px 14px;
+      color: #7c725f;
+      background: #efe7d2;
+      border-radius: 14px;
+      font-size: 12px;
+    }
+
+    .featured {
+      position: relative;
+      height: 205px;
+      overflow: hidden;
+      padding: 18px;
+      color: white;
+      background:
+        linear-gradient(155deg, transparent 35%, rgba(0, 0, 0, .64)),
+        radial-gradient(circle at 62% 36%, #edb046 0 8%, transparent 9%),
+        linear-gradient(145deg, #a75530, #202d2b 68%);
+      border-radius: 20px;
+    }
+
+    .featured::after {
+      position: absolute;
+      right: -28px;
+      bottom: -80px;
+      width: 190px;
+      height: 240px;
+      content: "";
+      transform: rotate(-12deg);
+      background: rgba(19, 14, 10, .55);
+      border-radius: 48% 48% 18% 18%;
+    }
+
+    .featured-copy {
+      position: absolute;
+      z-index: 1;
+      right: 16px;
+      bottom: 16px;
+      left: 16px;
+    }
+
+    .featured h3 {
+      margin: 4px 0;
+      font-family: Georgia, serif;
+      font-size: 24px;
+    }
+
+    .chips {
+      display: flex;
+      gap: 7px;
+      margin: 14px 0;
+      overflow: hidden;
+    }
+
+    .chip {
+      flex: none;
+      padding: 7px 10px;
+      color: var(--leaf);
+      background: #e2eadc;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .story-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e8ddc4;
+    }
+
+    .thumb {
+      display: grid;
+      flex: 0 0 48px;
+      height: 48px;
+      place-items: center;
+      color: white;
+      background: var(--leaf);
+      border-radius: 14px;
+      font-size: 20px;
+    }
+
+    .story-row strong { display: block; font-family: Georgia, serif; font-size: 13px; }
+    .story-row span { color: #786e5f; font-size: 10px; }
+
+    .hero {
+      position: relative;
+      height: 235px;
+      margin: -33px -18px 18px;
+      color: white;
+      background:
+        linear-gradient(to top, rgba(23, 17, 12, .86), transparent 65%),
+        radial-gradient(circle at 72% 33%, #f0ac35 0 8%, transparent 9%),
+        linear-gradient(145deg, #743a26, #243a36);
+    }
+
+    .hero-copy {
+      position: absolute;
+      right: 18px;
+      bottom: 16px;
+      left: 18px;
+    }
+
+    .hero h2 { font-size: 31px; }
+
+    .source-note {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+      padding: 11px;
+      background: #efe5cc;
+      border-radius: 13px;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 13px;
+      color: white;
+      background: var(--ember);
+      border: 0;
+      border-radius: 14px;
+      font-weight: 800;
+    }
+
+    .player {
+      display: grid;
+      margin: 18px 0;
+      padding: 18px;
+      place-items: center;
+      color: white;
+      background: var(--leaf);
+      border-radius: 22px;
+    }
+
+    .play {
+      display: grid;
+      width: 64px;
+      height: 64px;
+      margin: 12px;
+      place-items: center;
+      background: var(--sun);
+      border-radius: 50%;
+      font-size: 25px;
+    }
+
+    .wave {
+      width: 100%;
+      height: 35px;
+      margin-top: 10px;
+      background: repeating-linear-gradient(90deg, #f6d998 0 2px, transparent 2px 7px);
+      mask: linear-gradient(to bottom, transparent, #000 20% 80%, transparent);
+    }
+
+    .language {
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+      padding: 11px;
+      background: #efe7d2;
+      border-radius: 13px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin: 12px 0;
+      padding: 12px;
+      background: white;
+      border: 1px solid #e5d8ba;
+      border-radius: 15px;
+      box-shadow: 0 4px 14px rgba(51, 35, 20, .06);
+    }
+
+    .step b {
+      display: grid;
+      flex: 0 0 30px;
+      height: 30px;
+      place-items: center;
+      color: white;
+      background: var(--leaf);
+      border-radius: 50%;
+      font-size: 12px;
+    }
+
+    .step strong { display: block; font-size: 12px; }
+    .step span { color: #786e5f; font-size: 9px; }
+
+    .prompt-card {
+      margin: 18px 0;
+      padding: 18px;
+      color: white;
+      background: linear-gradient(145deg, var(--leaf), #183c35);
+      border-radius: 20px;
+    }
+
+    .prompt-card small { color: #cce0d4; }
+    .prompt-card h3 {
+      margin: 10px 0 16px;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .record {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 11px;
+      color: var(--ink);
+      background: var(--paper);
+      border-radius: 14px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .record-dot {
+      width: 28px;
+      height: 28px;
+      background: var(--ember);
+      border: 7px solid #f6c9b9;
+      border-radius: 50%;
+    }
+
+    .memory-cover {
+      position: relative;
+      height: 185px;
+      margin: 12px 0 16px;
+      overflow: hidden;
+      padding: 18px;
+      color: white;
+      background:
+        linear-gradient(to top, rgba(28, 20, 13, .78), transparent),
+        radial-gradient(circle at 70% 30%, #ffc85a 0 7%, transparent 8%),
+        linear-gradient(145deg, #426d5c, #9a5934);
+      border-radius: 20px;
+    }
+
+    .memory-cover div {
+      position: absolute;
+      right: 18px;
+      bottom: 16px;
+      left: 18px;
+    }
+
+    .memory-cover h3 {
+      margin: 4px 0;
+      font-family: Georgia, serif;
+      font-size: 22px;
+    }
+
+    .quote {
+      margin: 14px 0;
+      padding-left: 12px;
+      color: #594f42;
+      border-left: 3px solid var(--sun);
+      font-family: Georgia, serif;
+      font-size: 14px;
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    nav {
+      position: absolute;
+      z-index: 5;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      justify-content: space-around;
+      padding: 13px 8px 17px;
+      color: #817766;
+      background: rgba(255, 248, 232, .94);
+      border-top: 1px solid #dfd2b4;
+      backdrop-filter: blur(8px);
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    nav .active { color: var(--ember); }
+
+    footer {
+      max-width: 1180px;
+      margin: 24px auto 0;
+      color: #bfb6a6;
+      font-size: 12px;
+    }
+
+    @media (max-width: 800px) {
+      body { padding: 30px 16px; }
+      .screens { grid-template-columns: repeat(6, 270px); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="tag">Mobile concept · Kenyan stories in their places</div>
+    <h1>Mizizi</h1>
+    <p>Walk into a landscape and hear the stories it remembers. A source-aware, multilingual guide to local legends, oral histories, and community memory.</p>
+  </header>
+
+  <main class="screens">
+    <section class="phone">
+      <div class="status"><span>9:41</span><span>● ● ●</span></div>
+      <div class="content">
+        <div class="eyebrow">Good evening, Akinyi</div>
+        <h2>Stories near you</h2>
+        <p class="muted">Discover legends through the communities and landscapes that carry them.</p>
+        <div class="search">⌕ Search a person, place, or community</div>
+        <div class="featured">
+          <div class="featured-copy">
+            <small>Featured · Kano Plains</small>
+            <h3>Luanda Magere</h3>
+            <small>Strength, secrecy, and the cost of betrayal</small>
+          </div>
+        </div>
+        <div class="chips">
+          <span class="chip">Near me</span>
+          <span class="chip">Heroines</span>
+          <span class="chip">Origins</span>
+        </div>
+        <div class="story-row">
+          <div class="thumb">☀</div>
+          <div><strong>Mekatilili wa Menza</strong><span>Giriama resistance · Kilifi</span></div>
+        </div>
+        <div class="story-row">
+          <div class="thumb">⌁</div>
+          <div><strong>Kit-Mikayi</strong><span>Stone, family, and sacred place · Kisumu</span></div>
+        </div>
+      </div>
+      <nav><span class="active">⌂<br>Discover</span><span>⌖<br>Map</span><span>♬<br>Listen</span><span>◎<br>Saved</span></nav>
+    </section>
+
+    <section class="phone">
+      <div class="status"><span>9:41</span><span>● ● ●</span></div>
+      <div class="content">
+        <div class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow" style="color:#ffd783">Luo oral tradition</div>
+            <h2>Luanda Magere</h2>
+            <small>Kano Plains · Multiple community tellings</small>
+          </div>
+        </div>
+        <p class="muted">A warrior remembered for extraordinary strength—and for the secret that made him vulnerable.</p>
+        <div class="source-note">
+          <span>◈</span>
+          <span><strong>Source-aware story</strong><br>This version combines named references. Differences between tellings are clearly marked.</span>
+        </div>
+        <div class="story-row">
+          <div class="thumb">3</div>
+          <div><strong>Explore three tellings</strong><span>Compare details preserved by different sources</span></div>
+        </div>
+        <div class="story-row">
+          <div class="thumb">⌖</div>
+          <div><strong>See the landscape</strong><span>Places connected to the story</span></div>
+        </div>
+        <button class="button">Begin the story · 7 min</button>
+      </div>
+      <nav><span class="active">⌂<br>Discover</span><span>⌖<br>Map</span><span>♬<br>Listen</span><span>◎<br>Saved</span></nav>
+    </section>
+
+    <section class="phone">
+      <div class="status"><span>9:41</span><span>● ● ●</span></div>
+      <div class="content">
+        <div class="eyebrow">Now listening</div>
+        <h2>Mekatilili wa Menza</h2>
+        <p class="muted">Chapter 2 · The kifudu dance and a call to resist</p>
+        <div class="player">
+          <small>03:18 / 08:42</small>
+          <div class="play">▶</div>
+          <div class="wave"></div>
+        </div>
+        <div class="language"><span>Narration language</span><span>Kiswahili⌄</span></div>
+        <div class="language"><span>Read alongside</span><span>English⌄</span></div>
+        <div class="source-note">
+          <span>✦</span>
+          <span><strong>Ask the guide</strong><br>“Why was the kifudu dance important?” Answers cite the story’s sources.</span>
+        </div>
+        <button class="button" style="background:var(--leaf)">Ask a question</button>
+      </div>
+      <nav><span>⌂<br>Discover</span><span>⌖<br>Map</span><span class="active">♬<br>Listen</span><span>◎<br>Saved</span></nav>
+    </section>
+
+    <section class="phone">
+      <div class="status"><span>9:41</span><span>● ● ●</span></div>
+      <div class="content">
+        <div class="eyebrow">Community memory</div>
+        <h2>Add your telling</h2>
+        <p class="muted">Record how this story was told in your family or community. Nothing is published without your approval.</p>
+        <div class="step"><b>1</b><div><strong>Record or write</strong><span>Speak naturally in a supported language</span></div></div>
+        <div class="step"><b>2</b><div><strong>Review the transcript</strong><span>Correct names, places, and translations</span></div></div>
+        <div class="step"><b>3</b><div><strong>Add context and consent</strong><span>Choose attribution, access, and reuse terms</span></div></div>
+        <div class="step"><b>4</b><div><strong>Community review</strong><span>A human reviewer verifies it before publishing</span></div></div>
+        <div class="source-note">
+          <span>⌁</span>
+          <span><strong>Your voice stays yours.</strong><br>Download or delete your contribution at any time.</span>
+        </div>
+        <button class="button">Start recording</button>
+      </div>
+      <nav><span>⌂<br>Discover</span><span>⌖<br>Map</span><span>♬<br>Listen</span><span class="active">＋<br>Contribute</span></nav>
+    </section>
+
+    <section class="phone">
+      <div class="status"><span>9:41</span><span>● ● ●</span></div>
+      <div class="content">
+        <div class="eyebrow">Family story interview</div>
+        <h2>Tell it in your own voice</h2>
+        <p class="muted">Mizizi asks one gentle question at a time, then helps you shape the recording without changing what you meant.</p>
+        <div class="prompt-card">
+          <small>Question 2 of 6</small>
+          <h3>What was your home or neighbourhood like when you were growing up?</h3>
+          <div class="record"><span class="record-dot"></span><span>Tap to answer</span></div>
+        </div>
+        <div class="language"><span>Interview language</span><span>Kiswahili⌄</span></div>
+        <div class="story-row">
+          <div class="thumb">✓</div>
+          <div><strong>Your original audio is preserved</strong><span>AI removes nothing without your approval</span></div>
+        </div>
+        <div class="story-row">
+          <div class="thumb">✦</div>
+          <div><strong>Follow-up questions adapt</strong><span>Ask about people, places, recipes, songs, and lessons</span></div>
+        </div>
+        <button class="button" style="background:var(--leaf)">Choose another prompt</button>
+      </div>
+      <nav><span>⌂<br>Discover</span><span>⌖<br>Map</span><span class="active">●<br>Record</span><span>◎<br>Family</span></nav>
+    </section>
+
+    <section class="phone">
+      <div class="status"><span>9:41</span><span>● ● ●</span></div>
+      <div class="content">
+        <div class="eyebrow">Ready to share</div>
+        <h2>Grandma’s first journey to Nairobi</h2>
+        <div class="memory-cover">
+          <div>
+            <small>A family story told by Wanjiku</small>
+            <h3>A suitcase, a train, and a new beginning</h3>
+            <small>12-minute listen · 1968</small>
+          </div>
+        </div>
+        <div class="quote">“I had never seen so many lights together in one place.”</div>
+        <div class="chips">
+          <span class="chip">Original audio</span>
+          <span class="chip">Timeline</span>
+          <span class="chip">Photos</span>
+        </div>
+        <div class="source-note">
+          <span>♙</span>
+          <span><strong>Private family link</strong><br>Only invited relatives can open this page. Wanjiku controls edits and deletion.</span>
+        </div>
+        <button class="button">Share with family</button>
+        <button class="button" style="color:var(--leaf);background:#e2eadc">Download keepsake</button>
+      </div>
+      <nav><span>⌂<br>Discover</span><span>⌖<br>Map</span><span>●<br>Record</span><span class="active">◎<br>Family</span></nav>
+    </section>
+  </main>
+
+  <footer>Concept screens: discovery, source-aware legends, multilingual listening, guided oral interviews, and private family story pages.</footer>
+</body>
+</html>

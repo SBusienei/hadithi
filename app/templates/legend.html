@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Luanda Magere - Hadithi{% endblock %}
+{% block content %}
+<section class="legend-hero">
+  <div class="page-shell">
+    <p class="eyebrow light">{{ legend.community }}</p>
+    <h1>{{ legend.title }}</h1>
+    <p>{{ legend.place }} · {{ legend.reading_time }}</p>
+  </div>
+</section>
+
+<section class="page-shell narrow-shell legend-body">
+  <div class="review-notice">
+    <strong>How to read this story</strong>
+    <p>{{ legend.editorial_note }}</p>
+  </div>
+
+  {% for chapter in legend.chapters %}
+  <article class="legend-chapter" id="{{ chapter.id }}">
+    <p class="eyebrow">{{ chapter.eyebrow }}</p>
+    <h2>{{ chapter.title }}</h2>
+    {% for paragraph in chapter.paragraphs %}
+    <p>{{ paragraph }}</p>
+    {% endfor %}
+    <div class="citation-row" aria-label="Sources for this section">
+      {% for source_id in chapter.source_ids %}
+      {% set source = sources[source_id] %}
+      <a href="{{ source.url }}" target="_blank" rel="noreferrer">
+        {{ source.organization }}
+      </a>
+      {% endfor %}
+    </div>
+  </article>
+  {% endfor %}
+
+  <section class="variant-section">
+    <p class="eyebrow">Tellings differ</p>
+    <h2>Details Hadithi will not silently merge</h2>
+    <div class="variant-grid">
+      {% for variant in legend.variants %}
+      <article>
+        <strong>{{ variant.label }}</strong>
+        <p>{{ variant.text }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="reflection-section">
+    <p class="eyebrow">Think about the story</p>
+    <h2>Questions to carry with you</h2>
+    <ol>
+      {% for question in legend.reflection_questions %}
+      <li>{{ question }}</li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="source-section">
+    <p class="eyebrow">Approved foundation</p>
+    <h2>Sources used in this reading</h2>
+    {% for source in sources.values() %}
+    <a class="source-card" href="{{ source.url }}" target="_blank" rel="noreferrer">
+      <span>{{ source.organization }}</span>
+      <strong>{{ source.title }}</strong>
+      <small>{{ source.role }}</small>
+    </a>
+    {% endfor %}
+  </section>
+</section>
+{% endblock %}

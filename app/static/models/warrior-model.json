@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "path": "/static/models/african-warrior.glb",
+  "position": [-1.05, 0.02, 0.15],
+  "rotation": [0, 0.62, 0],
+  "scale": 1.38,
+  "source": {
+    "title": "African Warrior",
+    "creator": "avenirdesign",
+    "url": "https://skfb.ly/68YLs",
+    "license": "CC BY 4.0",
+    "license_url": "http://creativecommons.org/licenses/by/4.0/"
+  }
+}

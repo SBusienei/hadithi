@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block body_class %}immersive-body{% endblock %}
+{% block title %}Oral Traditions Portal - Hadithi{% endblock %}
+{% block content %}
+<main class="cosmos-portal" aria-label="Hadithi Oral Traditions Portal">
+  <div id="legendScene" class="cosmos-scene" aria-label="Interactive globe and Luanda Magere legend scene">
+    <div id="sceneLoading" class="scene-loading">Preparing the portal...</div>
+  </div>
+
+  <button id="enterPortal" class="enter-portal" type="button" aria-label="Enter the Oral Traditions Portal">
+    <span class="portal-rings" aria-hidden="true"></span>
+    <span class="visually-hidden">Enter portal</span>
+  </button>
+
+  <div id="locationMarker" class="location-marker" hidden aria-hidden="true">
+    <span></span>
+  </div>
+
+  <div id="immersiveControls" class="immersive-controls" hidden>
+    <button id="voiceQuestion" type="button" aria-label="Ask the legend a question">
+      <span class="microphone-icon" aria-hidden="true"></span>
+    </button>
+    <button id="toggleKeyboard" type="button" aria-label="Type a question">
+      <span aria-hidden="true">⌨</span>
+    </button>
+    <button id="moveSun" type="button" aria-label="Move the sun and shadow">
+      <span aria-hidden="true">☀</span>
+    </button>
+    <button id="toggleAmbience" type="button" aria-label="Toggle ambient soundscape">
+      <span aria-hidden="true">♪</span>
+    </button>
+    <button id="toggleCaptions" type="button" aria-label="Show or hide captions">
+      <span aria-hidden="true">CC</span>
+    </button>
+    <button id="toggleSources" type="button" aria-label="Show sources">
+      <span aria-hidden="true">◈</span>
+    </button>
+  </div>
+
+  <button id="voiceInvitation" class="voice-invitation" type="button" hidden>
+    <span class="voice-waves" aria-hidden="true">
+      <i></i>
+      <i></i>
+      <i></i>
+    </span>
+    <span>Tap to ask about Luanda</span>
+  </button>
+
+  <div id="sunPanel" class="immersive-panel sun-panel" hidden>
+    <input id="sunPosition" aria-label="Sun position" type="range" min="10" max="170" value="48">
+  </div>
+
+  <div id="captionPanel" class="caption-panel" hidden aria-live="polite">
+    <p id="guideAnswer"></p>
+  </div>
+
+  <aside id="legendChat" class="legend-chat" hidden aria-label="Conversation with Luanda Magere">
+    <header>
+      <span>Luanda Magere</span>
+      <small>Conversational interpretation from oral tradition</small>
+    </header>
+    <div id="chatMessages" class="chat-messages" aria-live="polite">
+      <article class="chat-bubble assistant">
+        You may call me Luanda. Ask me about my strength, my shadow, the Kano
+        Plains, or how different tellings remember me.
+      </article>
+    </div>
+    <form id="legendQuestionForm" class="question-panel immersive-panel" autocomplete="off">
+      <textarea id="legendQuestion" aria-label="Question about Luanda Magere" placeholder="Ask about Luanda..." minlength="3" maxlength="500"></textarea>
+      <div>
+        <select id="guideLanguage" aria-label="Question language">
+          <option value="en">English</option>
+          <option value="sw">Kiswahili</option>
+        </select>
+        <button type="submit" aria-label="Send question">→</button>
+      </div>
+    </form>
+  </aside>
+
+  <aside id="sourcePanel" class="immersive-panel source-panel" hidden>
+    <button id="closeSources" type="button" aria-label="Close sources">×</button>
+    <div id="guideSources"></div>
+    <a href="/legend/luanda-magere">Read the sourced story</a>
+    <a href="https://skfb.ly/68YLs" target="_blank" rel="noreferrer">
+      3D model: “African Warrior” by avenirdesign — CC BY 4.0
+    </a>
+  </aside>
+
+  <div id="voiceStatus" class="voice-status" hidden aria-live="polite"></div>
+
+  <nav class="portal-destinations" aria-label="Oral tradition gateways">
+    {% for legend in legends %}
+    <button
+      type="button"
+      data-legend="{{ legend.id }}"
+      aria-label="{{ legend.name }}, {{ legend.region }}{% if legend.status != 'active' %}, preview unavailable{% endif %}"
+      {% if legend.status != "active" %}disabled{% endif %}
+    >
+      <span class="destination-dot {% if legend.status == 'active' %}active{% endif %}"></span>
+      <span class="visually-hidden">{{ legend.name }}</span>
+    </button>
+    {% endfor %}
+  </nav>
+</main>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+  }
+}
+</script>
+<script type="module" src="/static/portal.js?v=20261030-conversation-memory"></script>
+{% endblock %}

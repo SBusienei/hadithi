@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: hadithi
+    runtime: python
+    region: frankfurt
+    plan: 1c-2g
+    buildCommand: >
+      pip install ".[ai]" &&
+      python -c "from faster_whisper import WhisperModel; WhisperModel('base', device='cpu', compute_type='int8')"
+    startCommand: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.7
+      - key: WHISPER_MODEL
+        value: base
+      - key: WHISPER_DEVICE
+        value: cpu
+      - key: WHISPER_COMPUTE_TYPE
+        value: int8
+      - key: WHISPER_CPU_THREADS
+        value: "2"
+      - key: LLM_MODEL
+        value: "@cf/meta/llama-3.2-3b-instruct"
+      - key: LLM_API_URL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false

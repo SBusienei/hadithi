@@ -1,0 +1,23 @@
+{
+  "legends": [
+    {
+      "id": "luanda-magere",
+      "name": "Luanda Magere",
+      "alternate_name": "Lwanda Magere",
+      "region": "Kenya",
+      "tradition": "Luo oral tradition",
+      "languages": ["English", "Kiswahili"],
+      "symbol": "shadow",
+      "status": "active"
+    },
+    {
+      "id": "la-llorona",
+      "name": "La Llorona",
+      "region": "Mexico and Latin America",
+      "tradition": "Regional oral traditions",
+      "languages": ["Español", "English"],
+      "symbol": "river",
+      "status": "preview"
+    }
+  ]
+}

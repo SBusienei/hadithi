@@ -1,0 +1,118 @@
+{
+  "title": "La Llorona",
+  "alternate_title": "The Weeping Woman",
+  "community": "Mexican and wider Latin American oral traditions",
+  "place": "Waterways across Mexico, Guatemala, and U.S. Latino communities",
+  "reading_time": "7 minute read",
+  "editorial_note": "Hadithi presents La Llorona as a changing family of oral traditions. Its context combines academic, university, museum, government, historical-association, and community-edited sources including Wikipedia. Details about her children, death, identity, motives, and origins differ by region and telling, so claims are attributed rather than stated as settled history.",
+  "chapters": [
+    {
+      "id": "many-voices",
+      "eyebrow": "A legend with many voices",
+      "title": "There is no single La Llorona",
+      "paragraphs": [
+        "La Llorona is often translated as the Weeping Woman, but the name does not point to one fixed biography. Researchers have documented many Mexican versions, while communities elsewhere in Latin America and the United States continue to reshape the story.",
+        "Wikipedia's community-edited overview describes the legend as widely told across Mexico, Central America, northern South America, and the southwestern United States. Some tellings share familiar images: a woman's cry, children, darkness, and water, but their meaning changes across regions, generations, and languages."
+      ],
+      "source_ids": [
+        "unam-tlalocan-variants",
+        "smithsonian-ay-mis-hijos",
+        "jfr-perez-review",
+        "wikipedia-la-llorona"
+      ]
+    },
+    {
+      "id": "water-memory",
+      "eyebrow": "Water, grief, and warning",
+      "title": "Why she is heard near the water",
+      "paragraphs": [
+        "Many widely circulated versions place La Llorona beside a river, canal, lake, or other waterway. Her crying may be told as grief for lost children, a warning to listeners, a moral lesson, or a memory attached to a particular landscape.",
+        "UNAM researchers interpret water through older Mesoamerican associations with fertility, death, and feminine sacred figures, later reshaped alongside European colonial ideas about sin, guilt, and redemption. Wikipedia also summarizes literal, historical-mythic, and symbolic approaches proposed for the legend's origins. Hadithi attributes these as interpretations rather than one proven origin."
+      ],
+      "source_ids": [
+        "unam-memory-water",
+        "smithsonian-ay-mis-hijos",
+        "wikipedia-la-llorona"
+      ]
+    },
+    {
+      "id": "children",
+      "eyebrow": "The detail that changes",
+      "title": "What happened to the children?",
+      "paragraphs": [
+        "A common modern telling says that the woman drowned her children and was condemned to search for them. Other tellings describe children who were lost near the water, while some traditions preserve very different encounters.",
+        "Because the circumstances change, Hadithi does not treat violence against the children, the woman's motive, or her punishment as universal facts about La Llorona."
+      ],
+      "source_ids": [
+        "smithsonian-ay-mis-hijos",
+        "unam-tlalocan-variants"
+      ]
+    },
+    {
+      "id": "unexpected-variant",
+      "eyebrow": "Not every encounter is a punishment",
+      "title": "The woman who brought water",
+      "paragraphs": [
+        "UNAM reports an Otomí telling from the Valle del Mezquital in which La Llorona appears to child shepherds. When they share their food with her, she rewards their generosity by giving them water.",
+        "This version matters because it interrupts the idea that La Llorona must always be portrayed as a vengeful monster. In some communities, her story can carry lessons about generosity, scarcity, and care."
+      ],
+      "source_ids": [
+        "unam-memory-water"
+      ]
+    },
+    {
+      "id": "living-tradition",
+      "eyebrow": "Still carried between generations",
+      "title": "From Guatemala to Chicano storytelling",
+      "paragraphs": [
+        "In San Andrés Semetabaj, Guatemala's Ministry of Culture documented elders and younger people gathering to share local versions of La Llorona as living cultural heritage.",
+        "In U.S. Latino and Chicano communities, the story continues to move between languages and forms. Scholarship describes traditional versions, retellings that revisit the woman's perspective, and works that transform her into a figure of resistance."
+      ],
+      "source_ids": [
+        "guatemala-semetabaj",
+        "smithsonian-ay-mis-hijos",
+        "jfr-perez-review"
+      ]
+    }
+  ],
+  "variants": [
+    {
+      "label": "The children",
+      "text": "Some versions describe deliberate drowning, while others describe children who were lost, disappeared, or belong to a different kind of encounter."
+    },
+    {
+      "label": "The woman's identity",
+      "text": "Tellings may connect her to an unnamed mother, La Malinche, pre-Hispanic feminine figures, or no historical identity at all."
+    },
+    {
+      "label": "Her purpose",
+      "text": "She may warn children, discipline social behaviour, express grief, protect a place, reward generosity, or become a figure of resistance."
+    },
+    {
+      "label": "Region and language",
+      "text": "Mexican, Guatemalan, U.S. border, Latino, and Chicano communities preserve distinct tellings in Spanish, English, Spanglish, and Indigenous-language contexts."
+    },
+    {
+      "label": "Origins",
+      "text": "Pre-Hispanic and colonial explanations are scholarly interpretations and narrative lineages rather than one conclusively established origin."
+    }
+  ],
+  "reflection_questions": [
+    "Why might the same cry carry different meanings in different communities?",
+    "What changes when La Llorona is understood through grief rather than punishment?",
+    "How do waterways hold memory in the places where the legend is told?",
+    "Why is it important to name the region behind a version of the story?",
+    "What can the Otomí generosity-and-water telling teach us about expecting only horror?",
+    "How have women and Chicano artists reclaimed or challenged older portrayals of La Llorona?"
+  ],
+  "initial_conversation_topics": [
+    "Is there one true version of your story?",
+    "Why are you remembered near the water?",
+    "What do different tellings say happened to the children?",
+    "How is the Otomí telling different?",
+    "How is La Llorona remembered in Guatemala?",
+    "How has the story changed in Chicano communities?",
+    "What do scholars say about pre-Hispanic and colonial interpretations?",
+    "Why do communities tell frightening stories?"
+  ]
+}
