@@ -1,11 +1,15 @@
-const CACHE_NAME = "hadithi-legends-v2";
+const CACHE_NAME = "hadithi-legends-v7";
 const SHELL = [
   "/",
   "/portal",
+  "/portal/la-llorona",
   "/legend/luanda-magere",
   "/legend/la-llorona",
   "/static/styles.css",
   "/static/app.js",
+  "/static/la-llorona-environment.js",
+  "/static/models/la-llorona-character-study.glb",
+  "/static/models/la-llorona-model.json",
   "/static/portal.js",
 ];
 

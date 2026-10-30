@@ -57,7 +57,7 @@
   <aside id="legendChat" class="legend-chat" hidden aria-label="Conversation with Luanda Magere">
     <header>
       <span>Luanda Magere</span>
-      <small>Conversational interpretation from oral tradition</small>
+      <small>Source-grounded character conversation · Luo oral tradition</small>
     </header>
     <div id="chatMessages" class="chat-messages" aria-live="polite">
       <article class="chat-bubble assistant">
@@ -66,7 +66,7 @@
       </article>
     </div>
     <form id="legendQuestionForm" class="question-panel immersive-panel" autocomplete="off">
-      <textarea id="legendQuestion" aria-label="Question about Luanda Magere" placeholder="Ask about Luanda..." minlength="3" maxlength="500"></textarea>
+      <textarea id="legendQuestion" aria-label="Question about Luanda Magere" placeholder="Ask Luanda anything…" minlength="1" maxlength="500"></textarea>
       <div>
         <select id="guideLanguage" aria-label="Question language">
           <option value="en">English</option>
@@ -89,17 +89,23 @@
   <div id="voiceStatus" class="voice-status" hidden aria-live="polite"></div>
 
   <nav class="portal-destinations" aria-label="Oral tradition gateways">
-    {% for legend in legends %}
-    <button
-      type="button"
-      data-legend="{{ legend.id }}"
-      aria-label="{{ legend.name }}, {{ legend.region }}{% if legend.status != 'active' %}, preview unavailable{% endif %}"
-      {% if legend.status != "active" %}disabled{% endif %}
-    >
-      <span class="destination-dot {% if legend.status == 'active' %}active{% endif %}"></span>
-      <span class="visually-hidden">{{ legend.name }}</span>
-    </button>
-    {% endfor %}
+    <span class="portal-destinations-label">Choose a destination</span>
+    <div class="portal-destination-list">
+      {% for legend in legends %}
+      <button
+        type="button"
+        data-legend="{{ legend.id }}"
+        aria-label="Travel to {{ legend.region }} for {{ legend.name }}{% if legend.status != 'active' %}, preview unavailable{% endif %}"
+        {% if legend.status != "active" %}disabled{% endif %}
+      >
+        <span class="destination-dot {% if legend.status == 'active' %}active{% endif %}"></span>
+        <span class="destination-copy">
+          <strong>{{ legend.region }}</strong>
+          <small>{{ legend.name }}</small>
+        </span>
+      </button>
+      {% endfor %}
+    </div>
   </nav>
 </main>
 
@@ -110,5 +116,5 @@
   }
 }
 </script>
-<script type="module" src="/static/portal.js?v=20261030-conversation-memory"></script>
+<script type="module" src="/static/portal.js?v=20261030-world-destinations"></script>
 {% endblock %}

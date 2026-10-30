@@ -44,9 +44,10 @@ Hadithi currently includes:
 - links to the institutional and academic sources behind each answer;
 - a lightweight procedural ambient soundscape built with the Web Audio API.
 
-Hadithi labels Luanda as a **conversational interpretation from oral
-tradition**. It does not pretend that the 3D character is the historical person
-or that every supernatural element is established fact.
+Luanda now speaks directly in a first-person character voice. The grounding
+layer still distinguishes oral tradition from established history, preserves
+variant tellings and prevents supernatural details from being presented as
+verified fact.
 
 ## Entering the Kano Plains
 

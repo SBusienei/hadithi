@@ -4,7 +4,7 @@
       "id": "luanda-magere",
       "name": "Luanda Magere",
       "alternate_name": "Lwanda Magere",
-      "region": "Kenya",
+      "region": "Kenya (Africa)",
       "tradition": "Luo oral tradition",
       "languages": ["English", "Kiswahili"],
       "symbol": "shadow",
@@ -13,11 +13,11 @@
     {
       "id": "la-llorona",
       "name": "La Llorona",
-      "region": "Mexico and Latin America",
+      "region": "Mexico (Latin America)",
       "tradition": "Regional oral traditions",
       "languages": ["Español", "English"],
       "symbol": "river",
-      "status": "preview"
+      "status": "active"
     }
   ]
 }

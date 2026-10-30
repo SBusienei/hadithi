@@ -7,6 +7,7 @@ import re
 import tempfile
 import urllib.error
 import urllib.request
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -48,8 +49,14 @@ class LegendConversationTurn(BaseModel):
 
 
 class LegendQuestionRequest(BaseModel):
-    question: str = Field(min_length=3, max_length=500)
+    question: str = Field(min_length=1, max_length=500)
     language: str = Field(default="en", pattern="^(en|sw)$")
+    history: list[LegendConversationTurn] = Field(default_factory=list, max_length=6)
+
+
+class LaLloronaQuestionRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=500)
+    language: str = Field(default="en", pattern="^(en|es)$")
     history: list[LegendConversationTurn] = Field(default_factory=list, max_length=6)
 
 
@@ -123,6 +130,16 @@ async def oral_traditions_portal(request: Request) -> HTMLResponse:
     )
 
 
+@app.get("/portal/la-llorona", response_class=HTMLResponse)
+async def la_llorona_environment(request: Request) -> HTMLResponse:
+    source_registry = load_json_content("la_llorona_sources.json")
+    return render(
+        request,
+        "la_llorona_environment.html",
+        review_status=source_registry["review_status"],
+    )
+
+
 @app.get("/api/legends/luanda-magere")
 async def luanda_magere_data() -> dict[str, object]:
     return load_json_content("luanda_magere.json")
@@ -179,11 +196,75 @@ def deterministic_luanda_answer(payload: LegendQuestionRequest) -> dict[str, obj
             "generator": "local-conversation",
         }
 
+    help_phrases = {
+        "help",
+        "what can we talk about",
+        "what can i ask",
+        "what do you know",
+        "nisaidie",
+        "tunaweza kuzungumza nini",
+        "naweza kuuliza nini",
+    }
+    if normalized_question in help_phrases:
+        return {
+            "answer": (
+                "You can ask me about my strength, my shadow, the Kano Plains, "
+                "my battles, the Sidho clan, or how different storytellers remember me."
+                if payload.language == "en"
+                else (
+                    "Unaweza kuniuliza kuhusu nguvu zangu, kivuli changu, Uwanda "
+                    "wa Kano, vita vyangu, ukoo wa Sidho, au jinsi wasimulizi "
+                    "tofauti wanavyonikumbuka."
+                )
+            ),
+            "topic": "help",
+            "sources": [],
+            "grounded": True,
+            "gesture": "open_hands",
+            "follow_up": None,
+            "generator": "local-conversation",
+        }
+
+    if normalized_question in {"thank you", "thanks", "asante", "asante sana"}:
+        return {
+            "answer": (
+                "You are welcome. I will remain here if another question comes to you."
+                if payload.language == "en"
+                else "Karibu. Nitasalia hapa ukipata swali lingine."
+            ),
+            "topic": "thanks",
+            "sources": [],
+            "grounded": True,
+            "gesture": "open_hands",
+            "follow_up": None,
+            "generator": "local-conversation",
+        }
+
+    if normalized_question in {"goodbye", "bye", "see you", "kwaheri", "tuonane"}:
+        return {
+            "answer": (
+                "Go well, and carry the stories with care."
+                if payload.language == "en"
+                else "Nenda salama, na uzibebe simulizi kwa uangalifu."
+            ),
+            "topic": "goodbye",
+            "sources": [],
+            "grounded": True,
+            "gesture": "reflect",
+            "follow_up": None,
+            "generator": "local-conversation",
+        }
+
     introduction_phrases = {
         "who are you",
+        "what is your name",
+        "whats your name",
+        "your name",
         "tell me about yourself",
         "introduce yourself",
         "wewe ni nani",
+        "jina lako ni nani",
+        "unaitwa nani",
         "nijulishe wewe ni nani",
     }
     if normalized_question in introduction_phrases:
@@ -405,9 +486,12 @@ def deterministic_luanda_answer(payload: LegendQuestionRequest) -> dict[str, obj
     }
 
 
-def gemma_grounding_context() -> str:
-    legend = load_json_content("luanda_magere.json")
-    source_registry = load_json_content("luanda_magere_sources.json")
+def legend_grounding_context(
+    legend_filename: str,
+    source_registry_filename: str,
+) -> str:
+    legend = load_json_content(legend_filename)
+    source_registry = load_json_content(source_registry_filename)
     approved_ids = {
         source["id"]
         for source in source_registry["sources"]
@@ -426,32 +510,107 @@ def gemma_grounding_context() -> str:
         f"[oral-variant] {variant['label']}: {variant['text']}"
         for variant in legend["variants"]
     )
+    if "editorial_position" in source_registry:
+        passages.append(f"[editorial-policy] {source_registry['editorial_position']}")
+    passages.extend(
+        f"[variant-to-preserve] {variant}"
+        for variant in source_registry.get("variants_to_preserve", [])
+    )
+    passages.extend(
+        f"[reuse-rule] {rule}"
+        for rule in source_registry.get("reuse_rules", [])
+    )
     return "\n".join(passages)
 
 
-def generate_gemma_legend_answer(
-    payload: LegendQuestionRequest,
+def gemma_grounding_context() -> str:
+    return legend_grounding_context(
+        "luanda_magere.json",
+        "luanda_magere_sources.json",
+    )
+
+
+@dataclass(frozen=True)
+class LegendGenerationConfig:
+    character_name: str
+    legend_filename: str
+    source_registry_filename: str
+    language_names: dict[str, str]
+    system_instructions: str
+
+
+LUANDA_GENERATION_CONFIG = LegendGenerationConfig(
+    character_name="Luanda",
+    legend_filename="luanda_magere.json",
+    source_registry_filename="luanda_magere_sources.json",
+    language_names={"en": "English", "sw": "Kiswahili"},
+    system_instructions=(
+        "Speak as Luanda Magere in a warm first-person character voice. Preserve "
+        "oral variants, distinguish cultural "
+        "belief from verified history, and never invent details or claim "
+        "supernatural events are proven."
+    ),
+)
+
+LA_LLORONA_GENERATION_CONFIG = LegendGenerationConfig(
+    character_name="La Llorona",
+    legend_filename="la_llorona.json",
+    source_registry_filename="la_llorona_sources.json",
+    language_names={"en": "English", "es": "Spanish"},
+    system_instructions=(
+        "Speak as La Llorona in a careful, compassionate first-person character "
+        "voice. Make clear that there is no single universal biography. Preserve "
+        "Mexican, Otomí, Guatemalan, U.S. Latino, and Chicano variants without "
+        "flattening them together. Attribute origin theories and supernatural "
+        "claims, avoid generic-horror or jump-scare framing, and never present "
+        "infanticide, suicide, a named partner, or one colonial identity as "
+        "universal fact. When citing Wikipedia, call it a community-edited overview."
+    ),
+)
+
+
+def approved_sources(source_registry_filename: str) -> dict[str, dict[str, object]]:
+    source_registry = load_json_content(source_registry_filename)
+    return {
+        source["id"]: source
+        for source in source_registry["sources"]
+        if source["approval"] == "approved_core"
+    }
+
+
+def source_details(
+    source_ids: list[str],
+    sources_by_id: dict[str, dict[str, object]],
+) -> list[dict[str, object]]:
+    return [
+        {
+            "id": source_id,
+            "title": sources_by_id[source_id]["title"],
+            "organization": sources_by_id[source_id]["organization"],
+            "url": sources_by_id[source_id]["url"],
+            "role": sources_by_id[source_id]["role"],
+        }
+        for source_id in source_ids
+    ]
+
+
+def generate_structured_legend_answer(
+    payload: LegendQuestionRequest | LaLloronaQuestionRequest,
+    config: LegendGenerationConfig,
 ) -> dict[str, object]:
     api_key = os.getenv("LLM_API_KEY") or os.getenv("GEMMA_API_KEY")
     if not api_key:
         raise RuntimeError("The language model is not configured.")
 
-    source_registry = load_json_content("luanda_magere_sources.json")
-    sources_by_id = {
-        source["id"]: source
-        for source in source_registry["sources"]
-        if source["approval"] == "approved_core"
-    }
-    requested_language = "Kiswahili" if payload.language == "sw" else "English"
+    sources_by_id = approved_sources(config.source_registry_filename)
+    requested_language = config.language_names[payload.language]
     conversation_context = "\n".join(
-        f"{'Visitor' if turn.role == 'user' else 'Luanda'}: {turn.content}"
+        f"{'Visitor' if turn.role == 'user' else config.character_name}: {turn.content}"
         for turn in payload.history[-6:]
     )
     system_prompt = (
-        "Role-play as a warm, conversational interpretation of Luanda Magere and "
-        "speak in the first person. Use only the approved passages supplied by the "
-        "user. Preserve oral variants, distinguish cultural belief from verified "
-        "history, and never invent details or claim supernatural events are proven. "
+        f"{config.system_instructions} "
+        "Use only the approved passages supplied by the user as evidence. "
         "If the passages do not answer the question, set grounded to "
         "false and briefly say that reliable information is not available. Return only "
         "one JSON object with keys: answer, grounded, source_ids, topic, gesture, "
@@ -475,9 +634,10 @@ def generate_gemma_legend_answer(
             {
                 "role": "user",
                 "content": (
-                    f"Approved passages:\n{gemma_grounding_context()}\n\n"
+                    "Approved passages and editorial safeguards:\n"
+                    f"{legend_grounding_context(config.legend_filename, config.source_registry_filename)}\n\n"
                     "Recent conversation follows for conversational context only. "
-                    "Do not treat it as evidence or cite it as a source.\n"
+                    "Never treat chat history as evidence and never cite it as a source.\n"
                     f"{conversation_context or '(no previous conversation)'}\n\n"
                     f"Current question: {payload.question}"
                 ),
@@ -562,6 +722,16 @@ def generate_gemma_legend_answer(
         raise ValueError("The language model did not return structured JSON.")
     generated = json.loads(json_match.group(0))
 
+    required_keys = {
+        "answer",
+        "grounded",
+        "source_ids",
+        "topic",
+        "gesture",
+        "follow_up",
+    }
+    if not isinstance(generated, dict) or set(generated) != required_keys:
+        raise ValueError("The language model returned an invalid response shape.")
     answer = generated.get("answer")
     grounded = generated.get("grounded")
     source_ids = generated.get("source_ids", [])
@@ -574,33 +744,472 @@ def generate_gemma_legend_answer(
     if gesture not in {"open_hands", "point_ground", "reflect", "neutral"}:
         gesture = "neutral"
 
-    valid_source_ids = [
-        source_id
+    if any(
+        not isinstance(source_id, str) or source_id not in sources_by_id
         for source_id in source_ids
-        if isinstance(source_id, str) and source_id in sources_by_id
-    ]
+    ):
+        raise ValueError("The language model cited an unapproved source.")
+    valid_source_ids = list(dict.fromkeys(source_ids))
     if grounded and not valid_source_ids:
         raise ValueError(
             "The language model claimed grounding without an approved citation."
         )
-    if not grounded:
-        valid_source_ids = []
+    if not grounded and valid_source_ids:
+        raise ValueError("An ungrounded response cannot include citations.")
 
     return {
         "answer": answer.strip(),
         "topic": str(generated.get("topic") or "conversation")[:40],
-        "sources": [
-            {
-                "title": sources_by_id[source_id]["title"],
-                "organization": sources_by_id[source_id]["organization"],
-                "url": sources_by_id[source_id]["url"],
-            }
-            for source_id in valid_source_ids
-        ],
+        "sources": source_details(valid_source_ids, sources_by_id),
         "grounded": grounded,
         "gesture": gesture,
         "follow_up": follow_up if isinstance(follow_up, str) else None,
         "generator": completion.get("model", model),
+    }
+
+
+def generate_gemma_legend_answer(
+    payload: LegendQuestionRequest,
+) -> dict[str, object]:
+    return generate_structured_legend_answer(payload, LUANDA_GENERATION_CONFIG)
+
+
+def generate_la_llorona_answer(
+    payload: LaLloronaQuestionRequest,
+) -> dict[str, object]:
+    result = generate_structured_legend_answer(
+        payload,
+        LA_LLORONA_GENERATION_CONFIG,
+    )
+    result["review_status"] = load_json_content("la_llorona_sources.json")[
+        "review_status"
+    ]
+    return result
+
+
+def deterministic_la_llorona_answer(
+    payload: LaLloronaQuestionRequest,
+) -> dict[str, object]:
+    registry = load_json_content("la_llorona_sources.json")
+    sources_by_id = approved_sources("la_llorona_sources.json")
+    question = payload.question.casefold()
+    normalized_question = re.sub(r"[^\w\sáéíóúüñ]", "", question).strip()
+    topic_question = question
+    if normalized_question in {"yes", "yeah", "sure", "okay", "ok", "sí", "si"}:
+        recent_context = " ".join(turn.content for turn in payload.history[-4:])
+        if recent_context:
+            topic_question = recent_context.casefold()
+
+    base = {
+        "gesture": "reflect",
+        "follow_up": None,
+        "review_status": registry["review_status"],
+    }
+    greeting_phrases = {
+        "hi",
+        "hello",
+        "hey",
+        "hi la llorona",
+        "hello la llorona",
+        "hola",
+        "hola llorona",
+        "buenas",
+    }
+    if normalized_question in greeting_phrases:
+        return {
+            **base,
+            "answer": (
+                "Hello. I am La Llorona, the Weeping Woman carried through many "
+                "tellings. You may ask me about the water, my grief, the children, "
+                "or how different communities remember me. What would you like to know?"
+                if payload.language == "en"
+                else (
+                    "Hola. Soy La Llorona, la Mujer que Llora, recordada en muchas "
+                    "tradiciones. Puedes preguntarme por el agua, mi duelo, los "
+                    "niños o cómo me recuerdan distintas comunidades. ¿Qué quieres saber?"
+                )
+            ),
+            "topic": "greeting",
+            "sources": [],
+            "grounded": True,
+            "generator": "local-conversation",
+        }
+
+    identity_phrases = {
+        "who are you",
+        "what is your name",
+        "whats your name",
+        "your name",
+        "tell me about yourself",
+        "introduce yourself",
+        "quién eres",
+        "quien eres",
+        "cómo te llamas",
+        "como te llamas",
+        "cuál es tu nombre",
+        "cual es tu nombre",
+    }
+    if normalized_question in identity_phrases:
+        return {
+            **base,
+            "answer": (
+                "I am La Llorona—the Weeping Woman. My story changes as it moves "
+                "between Mexican, Otomí, Guatemalan, Latino, and Chicano communities, "
+                "so I will tell you which tradition a detail comes from."
+                if payload.language == "en"
+                else (
+                    "Soy La Llorona, la Mujer que Llora. Mi historia cambia entre "
+                    "comunidades mexicanas, otomíes, guatemaltecas, latinas y chicanas, "
+                    "así que te diré de qué tradición proviene cada detalle."
+                )
+            ),
+            "topic": "identity",
+            "sources": [],
+            "grounded": True,
+            "generator": "local-conversation",
+        }
+
+    help_phrases = {
+        "help",
+        "what can we talk about",
+        "what can i ask",
+        "what do you know",
+        "ayuda",
+        "de qué podemos hablar",
+        "de que podemos hablar",
+        "qué puedo preguntar",
+        "que puedo preguntar",
+    }
+    if normalized_question in help_phrases:
+        return {
+            **base,
+            "answer": (
+                "Ask me about the river, the children, the Otomí telling in which "
+                "I bring water, Guatemala, Chicano retellings, or the different "
+                "ideas about where my story began."
+                if payload.language == "en"
+                else (
+                    "Pregúntame por el río, los niños, la versión otomí en la que "
+                    "llevo agua, Guatemala, las reinterpretaciones chicanas o las "
+                    "distintas ideas sobre el origen de mi historia."
+                )
+            ),
+            "topic": "help",
+            "sources": [],
+            "grounded": True,
+            "generator": "local-conversation",
+        }
+
+    if normalized_question in {
+        "thank you",
+        "thanks",
+        "gracias",
+        "muchas gracias",
+    }:
+        return {
+            **base,
+            "answer": (
+                "You are welcome. I will remain by the water if you wish to ask more."
+                if payload.language == "en"
+                else "De nada. Permaneceré junto al agua si quieres preguntar algo más."
+            ),
+            "topic": "thanks",
+            "sources": [],
+            "grounded": True,
+            "generator": "local-conversation",
+        }
+
+    if normalized_question in {
+        "goodbye",
+        "bye",
+        "see you",
+        "adiós",
+        "adios",
+        "hasta luego",
+    }:
+        return {
+            **base,
+            "answer": (
+                "Go carefully. Remember that every river carries a different telling."
+                if payload.language == "en"
+                else "Ve con cuidado. Recuerda que cada río lleva una historia distinta."
+            ),
+            "topic": "goodbye",
+            "sources": [],
+            "grounded": True,
+            "generator": "local-conversation",
+        }
+
+    answers = {
+        "variants": {
+            "keywords": (
+                "one true",
+                "true version",
+                "real version",
+                "same story",
+                "single story",
+                "una versión",
+                "version verdadera",
+                "historia verdadera",
+                "una sola",
+            ),
+            "sources": [
+                "unam-tlalocan-variants",
+                "smithsonian-ay-mis-hijos",
+                "jfr-perez-review",
+            ],
+            "en": (
+                "I do not have one true biography shared by every community. "
+                "Mexican collections remember me in many ways, while Guatemalan, "
+                "U.S. Latino, and Chicano tellings carry their own histories and "
+                "meanings. I will name the region rather than blend those voices."
+            ),
+            "es": (
+                "No tengo una sola biografía verdadera compartida por todas las "
+                "comunidades. En México me recuerdan de muchas maneras, mientras "
+                "las tradiciones guatemaltecas, latinas de Estados Unidos y chicanas "
+                "guardan historias propias. Nombraré la región en lugar de mezclarlas."
+            ),
+        },
+        "water": {
+            "keywords": (
+                "water",
+                "river",
+                "lake",
+                "canal",
+                "cry",
+                "weeping",
+                "agua",
+                "río",
+                "rio",
+                "lago",
+                "canal",
+                "llanto",
+                "llorar",
+            ),
+            "sources": [
+                "unam-memory-water",
+                "smithsonian-ay-mis-hijos",
+                "wikipedia-la-llorona",
+            ],
+            "en": (
+                "You will often hear my cry near rivers, canals, or lakes, but the "
+                "water around me does not carry one fixed meaning. It may hold grief, warning, "
+                "fertility, death, memory, or care. UNAM discusses Mesoamerican and "
+                "colonial interpretations; Wikipedia contributors provide a "
+                "community-edited overview rather than a final authority."
+            ),
+            "es": (
+                "A menudo escucharás mi llanto junto a ríos, canales o lagos, "
+                "pero el agua que me rodea no tiene un único significado. Puede expresar duelo, "
+                "advertencia, fertilidad, muerte, memoria o cuidado. La UNAM analiza "
+                "interpretaciones mesoamericanas y coloniales; Wikipedia contributors "
+                "ofrece un panorama editado por la comunidad, no una autoridad final."
+            ),
+        },
+        "children": {
+            "keywords": (
+                "children",
+                "child",
+                "drown",
+                "kids",
+                "hijos",
+                "hijas",
+                "niños",
+                "ninos",
+                "ahog",
+            ),
+            "sources": [
+                "smithsonian-ay-mis-hijos",
+                "unam-tlalocan-variants",
+            ],
+            "en": (
+                "Some modern tellings say I deliberately drowned my children. "
+                "Others say they were lost, disappeared, or belonged to a very "
+                "different encounter. Do not treat the violence, motive, and "
+                "punishment from one version as facts in every telling."
+            ),
+            "es": (
+                "Algunas versiones modernas dicen que ahogué deliberadamente a mis "
+                "hijos. Otras dicen que se perdieron, desaparecieron o formaron parte "
+                "de un encuentro muy distinto. No trates la violencia, el motivo y "
+                "el castigo de una versión como hechos universales."
+            ),
+        },
+        "otomi": {
+            "keywords": (
+                "otomí",
+                "otomi",
+                "generosity",
+                "brought water",
+                "gave water",
+                "generosidad",
+                "trajo agua",
+                "dio agua",
+                "mezquital",
+            ),
+            "sources": ["unam-memory-water"],
+            "en": (
+                "In an Otomí telling from the Valle del Mezquital documented by "
+                "UNAM, child shepherds share their food with me. I reward their "
+                "generosity by giving them water. In that tradition, I am not only "
+                "a vengeful figure; my story teaches care amid scarcity."
+            ),
+            "es": (
+                "En una versión otomí del Valle del Mezquital documentada por la "
+                "UNAM, unos niños pastores comparten su comida conmigo. Yo premio "
+                "su generosidad dándoles agua. En esa tradición no soy solo una "
+                "figura vengativa; mi historia habla del cuidado en la escasez."
+            ),
+        },
+        "guatemala": {
+            "keywords": ("guatemala", "semetabaj", "sololá", "solola"),
+            "sources": ["guatemala-semetabaj"],
+            "en": (
+                "In San Andrés Semetabaj, Guatemala's Ministry of Culture documented "
+                "elders and younger people gathering to share local stories about "
+                "me as living cultural heritage. Remember those as Guatemalan "
+                "traditions, not copies of one supposedly universal Mexican plot."
+            ),
+            "es": (
+                "En San Andrés Semetabaj, el Ministerio de Cultura de Guatemala "
+                "documentó a personas mayores y jóvenes compartiendo versiones "
+                "locales sobre mí como patrimonio cultural vivo. Recuérdalas como "
+                "tradiciones guatemaltecas, no como copias de una trama mexicana universal."
+            ),
+        },
+        "chicano": {
+            "keywords": (
+                "chicano",
+                "chicana",
+                "latino",
+                "united states",
+                "u.s.",
+                "resistance",
+                "resistencia",
+                "estados unidos",
+            ),
+            "sources": [
+                "smithsonian-ay-mis-hijos",
+                "jfr-perez-review",
+            ],
+            "en": (
+                "In U.S. Latino and Chicano retellings, I move between English, "
+                "Spanish, Spanglish, and Indigenous-language contexts. Writers and "
+                "artists sometimes revisit my perspective or transform me into a "
+                "figure of resistance, migration, gender, grief, or environmental memory."
+            ),
+            "es": (
+                "Las reinterpretaciones latinas y chicanas en Estados Unidos se "
+                "mueven entre inglés, español, spanglish y contextos de lenguas "
+                "indígenas. Algunas obras revisan mi perspectiva o me convierten "
+                "en figura de resistencia, migración, género, duelo o memoria ambiental."
+            ),
+        },
+        "origins": {
+            "keywords": (
+                "origin",
+                "aztec",
+                "pre-hispanic",
+                "prehispanic",
+                "colonial",
+                "malinche",
+                "cihuacoatl",
+                "tonantzin",
+                "origen",
+                "prehispán",
+                "prehispan",
+                "colonial",
+            ),
+            "sources": [
+                "unam-memory-water",
+                "jfr-perez-review",
+                "wikipedia-la-llorona",
+            ],
+            "en": (
+                "People connect me to Cihuacoatl, Tonantzin, La Malinche, colonial "
+                "guilt, or a historical woman, but those are interpretations and "
+                "narrative lineages, not my conclusively proven origin. UNAM discusses syncretic readings; "
+                "Wikipedia contributors summarize additional theories in a "
+                "community-edited overview."
+            ),
+            "es": (
+                "Hay quienes me relacionan con Cihuacóatl, Tonantzin, La Malinche, "
+                "la culpa colonial o una mujer histórica, pero son interpretaciones "
+                "y linajes narrativos, no mi origen comprobado. La UNAM analiza lecturas "
+                "sincréticas; Wikipedia contributors resume otras teorías en un "
+                "panorama editado por la comunidad."
+            ),
+        },
+        "fear": {
+            "keywords": (
+                "scary",
+                "fright",
+                "horror",
+                "monster",
+                "warning",
+                "miedo",
+                "terror",
+                "monstruo",
+                "advertencia",
+            ),
+            "sources": [
+                "unam-memory-water",
+                "smithsonian-ay-mis-hijos",
+                "jfr-perez-review",
+            ],
+            "en": (
+                "Fear can be one part of my story, especially when a telling "
+                "warns children away from dangerous water or teaches social rules. "
+                "But grief, memory, generosity, migration, and resistance also shape "
+                "how I am remembered. Calling me only a horror monster erases those meanings."
+            ),
+            "es": (
+                "El miedo puede formar parte de mi historia, por ejemplo cuando un "
+                "relato aleja a los niños del agua peligrosa o enseña normas sociales. "
+                "Pero el duelo, la memoria, la generosidad, la migración y la "
+                "resistencia también transforman cómo me recuerdan. Llamarme solo "
+                "monstruo borra esos sentidos."
+            ),
+        },
+    }
+    selected_topic = next(
+        (
+            topic
+            for topic, answer in answers.items()
+            if any(keyword in topic_question for keyword in answer["keywords"])
+        ),
+        None,
+    )
+    if selected_topic is None:
+        return {
+            **base,
+            "answer": (
+                "I do not have enough approved source material to answer that "
+                "reliably. Ask about regional variants, water, the children, the "
+                "Otomí telling, Guatemala, Chicano retellings, or origin theories."
+                if payload.language == "en"
+                else (
+                    "No tengo suficiente material aprobado para responder con "
+                    "fiabilidad. Pregunta por las variantes regionales, el agua, los "
+                    "niños, la versión otomí, Guatemala, las reinterpretaciones "
+                    "chicanas o las teorías de origen."
+                )
+            ),
+            "topic": "unsupported",
+            "sources": [],
+            "grounded": False,
+            "generator": "verified-fallback",
+        }
+
+    selected = answers[selected_topic]
+    return {
+        **base,
+        "answer": selected[payload.language],
+        "topic": selected_topic,
+        "sources": source_details(selected["sources"], sources_by_id),
+        "grounded": True,
+        "generator": "verified-fallback",
     }
 
 
@@ -625,6 +1234,43 @@ async def ask_luanda_magere(payload: LegendQuestionRequest) -> dict[str, object]
     ) as error:
         logger.warning(
             "Language-model generation failed; using verified fallback: %s",
+            error,
+        )
+        if isinstance(error, urllib.error.HTTPError):
+            reason = f"provider HTTP {error.code}"
+        elif isinstance(error, TimeoutError):
+            reason = "provider timeout"
+        else:
+            reason = error.__class__.__name__
+        fallback["generation_warning"] = (
+            f"AI model unavailable ({reason}); showing a verified source response."
+        )
+        return fallback
+
+
+@app.post("/api/legends/la-llorona/ask")
+async def ask_la_llorona(
+    payload: LaLloronaQuestionRequest,
+) -> dict[str, object]:
+    fallback = deterministic_la_llorona_answer(payload)
+    if fallback["topic"] == "greeting":
+        return fallback
+    if not (os.getenv("LLM_API_KEY") or os.getenv("GEMMA_API_KEY")):
+        return fallback
+    try:
+        return await run_in_threadpool(generate_la_llorona_answer, payload)
+    except (
+        KeyError,
+        OSError,
+        RuntimeError,
+        ValueError,
+        json.JSONDecodeError,
+        urllib.error.HTTPError,
+        urllib.error.URLError,
+        TimeoutError,
+    ) as error:
+        logger.warning(
+            "La Llorona generation failed; using verified fallback: %s",
             error,
         )
         if isinstance(error, urllib.error.HTTPError):
@@ -784,4 +1430,3 @@ async def transcribe_audio(
     finally:
         if temp_path is not None:
             temp_path.unlink(missing_ok=True)
-

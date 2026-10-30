@@ -19,92 +19,130 @@ I kept wondering: if our gathering places are changing, can we create a new
 kind of place where these stories can still be encountered?
 
 That question became Hadithi, an immersive portal into oral tradition.
-Visitors do not simply read a summary. They enter a legend's landscape, meet a
-conversational interpretation of its central character, and ask questions
-using text or their voice.
+Visitors do not simply read a summary. They enter a legend's landscape, meet
+the character through a source-grounded first-person conversation, and ask
+questions using text or their voice.
 
-The first complete experience is **Luanda Magere**, remembered in Luo oral
-tradition and associated with the Kano Plains in Kenya. The second destination
-will be **La Llorona**, approached through the different tellings found across
-Mexico and Latin America.
+The portal now opens onto two complete destinations:
+
+- **Kenya (Africa)**, where visitors travel to the Kano Plains and speak with
+  **Luanda Magere** from Luo oral tradition;
+- **Mexico (Latin America)**, where visitors enter a moonlit river landscape
+  shaped around the regional tellings of **La Llorona**.
+
+The world view does not hide these behind an abstract globe. It presents clear
+destination cards, marks both locations, and lets the visitor choose where the
+journey should go. A short procedural airship-like engine and wind sound begins
+after the visitor clicks, giving the transition a sense of departure without
+using a copyrighted audio asset.
 
 I interpreted "Ghost in the Machine" as the trace of a story that remains
 present because people continue to tell, question, reinterpret, and remember
 it. Hadithi does not claim that a generated character is the historical person
 or that every supernatural event is verified fact.
 
-The current Luanda experience includes:
+The completed experience includes:
 
-- a full-screen Three.js journey from a cosmic portal to the Kano Plains;
+- a full-screen Three.js world gateway with Kenya and Mexico destinations;
+- user-triggered procedural airship audio during departure;
+- two independently designed legend landscapes;
 - a licensed 3D warrior representing Luanda Magere;
 - a moving sun and physically changing shadow connected to the legend;
-- conversational text bubbles beside the character;
+- a licensed, adapted and rigged La Llorona character with a looping
+  `Mournful_Idle` animation;
+- conversational text panels beside each character;
 - microphone recording and faster-whisper transcription;
-- English and Kiswahili response modes;
+- English, Kiswahili and Spanish interfaces where appropriate;
 - mixed-language question understanding;
 - source-grounded generation with Llama 3.2 through Cloudflare Workers AI;
 - strict JSON-schema and citation validation;
 - reviewed deterministic answers when generation fails;
 - visible provider status and source links;
-- a procedural Web Audio soundscape.
+- independent procedural soundscapes for the Kano Plains and riverbank.
 
-The interface labels Luanda as a **conversational interpretation from oral
-tradition**.
+Both characters speak in the first person while their factual answers remain
+restricted to approved sources. La Llorona is visibly marked as a **research
+draft requiring cultural review**, and the experience does not merge regional
+tellings into one universal biography.
 
-<!-- Add hero screenshot:
-![Hadithi's Luanda Magere experience](assets/luanda-kano-plains.webp)
--->
+![Luanda Magere in the Kano Plains beside the source-grounded conversation panel](assets/luanda-magere-character-conversation.png)
+
+*Luanda speaks in the first person beside text, microphone and destination
+controls. Answers remain constrained to the reviewed Luo source pack.*
+
+![La Llorona at the moonlit river beside the bilingual source-grounded conversation panel](assets/la-llorona-character-conversation.png)
+
+*The adapted character preserves the rig and restrained `Mournful_Idle`
+animation. The bilingual chat keeps the cultural-review status and source
+grounding visible rather than presenting one regional telling as universal.*
 
 ## Demo
-
-<!-- Replace these placeholders before publishing. -->
 
 - **Live demo:** Coming after the Render deployment.
 - **Video demo:** Coming soon.
 
-The planned demonstration will show:
+The demonstration can now show:
 
-1. entering the portal and travelling toward Kenya;
-2. arriving in the Kano Plains;
-3. asking Luanda a question by microphone;
-4. receiving a grounded answer with citations;
-5. changing the sun to move Luanda's shadow;
-6. continuing the conversation with a short follow-up such as "Yeah";
-7. switching between English and Kiswahili.
-
-<!-- Add demo image:
-![A grounded conversation with Luanda](assets/luanda-conversation.webp)
--->
+1. choosing Kenya or Mexico from the world view;
+2. hearing the procedural airship transition after departure;
+3. arriving in the Kano Plains and moving Luanda's shadow with the sun;
+4. asking Luanda a question by microphone or text;
+5. returning to the world and travelling to La Llorona's riverbank;
+6. asking about the Otomí or Guatemalan telling in English or Spanish;
+7. receiving an answer with visible approved citations;
+8. enabling the independent landscape ambience.
 
 ## Code
 
-<!-- Replace OWNER and REPOSITORY after the public repository is ready. -->
-
-{% github OWNER/REPOSITORY %}
+{% github SBusienei/hadithi %}
 
 The main implementation areas are:
 
 - `app/main.py` — FastAPI routes, grounded generation, schema validation and
   deterministic fallbacks;
 - `app/static/portal.js` — Three.js scene, character interaction, chat,
-  conversation memory, microphone recording and ambient audio;
+  world destinations, airship transition audio, conversation memory,
+  microphone recording and Kano Plains ambience;
+- `app/static/la-llorona-environment.js` — moonlit river, adapted character,
+  bilingual chat and procedural river ambience;
 - `app/services/transcription.py` — faster-whisper CPU transcription;
 - `app/content/luanda_magere.json` — approved narrative passages;
 - `app/content/luanda_magere_sources.json` — source registry and editorial
   safeguards;
+- `app/content/la_llorona.json` and `app/content/la_llorona_sources.json` —
+  regional narrative pack, source registry and cultural safeguards;
+- `scripts/adapt_la_llorona_model.py` — reproducible Blender adaptation and
+  idle-animation export;
 - `tests/test_app.py` — grounding, fallback, conversation and route tests.
 
 ## How I Built It
 
 ### The immersive portal
 
-The browser renders the landscape with Three.js. The experience begins with a
-globe suspended in a dark portal before the camera moves toward Kenya and
-reveals the Kano Plains.
+The browser begins with a globe suspended in a dark portal. Two readable
+destination cards sit below it:
+
+- **Kenya (Africa) — Luanda Magere**
+- **Mexico (Latin America) — La Llorona**
+
+Choosing Kenya moves the camera toward the world and reveals the Kano Plains.
+Choosing Mexico opens a separate moonlit river environment. Both journeys begin
+with a short Web Audio transition built from filtered noise and oscillators. It
+sounds like an airship engine, rising wind and an arrival tone, but no audio
+file is downloaded and autoplay rules are respected because the sound begins
+from the visitor's click.
 
 Luanda faces the visitor beside a chat surface. The moving sun changes the
 direction of his shadow, turning a central part of the legend into something
 the visitor can explore.
+
+La Llorona stands farther downriver with her `Mournful_Idle` animation. Mist,
+reeds, reflections and restrained moonlight build the atmosphere without
+turning the experience into a generic horror scene. Her conversation remains
+text-first because the available synthetic voices did not sound natural enough
+for the character.
+
+
 
 ### Voice input
 
@@ -171,13 +209,14 @@ citations rather than being presented as equivalent to peer-reviewed research.
 
 ```text
 Browser
-  |- Three.js: globe, Kano Plains, character and shadow
+  |- Three.js: destination globe, Kano Plains and moonlit river
+  |- Characters: Luanda Magere and animated La Llorona
   |- MediaRecorder: voice questions
-  |- Web Audio API: procedural ambience
+  |- Web Audio API: airship transition and procedural ambience
   `- Chat: conversation, citations and provider status
 
 FastAPI
-  |- approved cultural-source passages
+  |- separate approved source packs for each legend
   |- bounded conversation context
   |- strict generation and citation validation
   |- reviewed deterministic fallbacks
@@ -223,9 +262,10 @@ continue with reviewed material.
 
 <!-- Add the DevRelay agent_session embed or session link before publishing. -->
 
-GitHub Copilot helped me iterate through the Three.js experience, transcription
+GitHub Copilot helped me iterate through the Three.js experiences, transcription
 pipeline, provider integrations, structured-output failures, citation checks,
-conversation memory and test coverage.
+conversation memory, Blender character adaptation, mobile layout and test
+coverage.
 
 The useful part of the agent workflow was not receiving one perfect generated
 solution. It was being able to test assumptions, inspect failures, replace
@@ -234,8 +274,14 @@ unreliable providers and preserve the decisions that made the experience safer.
 ## The Spirit of It
 
 The moment the project landed for me was not when the model produced its first
-answer. It was when Luanda stood in the Kano Plains and a visitor could move the
-sun, watch his shadow move, and ask why that shadow mattered.
+answer. It was when the world stopped being a decorative globe and became a
+choice: Kenya or Mexico, the Kano Plains or a moonlit river, one oral tradition
+followed by another without pretending they were interchangeable.
+
+It was also when Luanda stood in the Kano Plains and a visitor could move the
+sun, watch his shadow move, and ask why that shadow mattered—and when La
+Llorona's answer could point to a specific regional telling instead of
+repeating the most familiar horror summary.
 
 For a moment, the story no longer felt like a paragraph preserved somewhere on
 the internet. It felt close again. Someone could speak in English, add a

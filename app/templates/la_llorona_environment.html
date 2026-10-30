@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block body_class %}immersive-body{% endblock %}
+{% block title %}La Llorona Riverbank - Hadithi{% endblock %}
+{% block content %}
+<main class="llorona-environment" aria-label="La Llorona moonlit riverbank">
+  <div
+    id="laLloronaScene"
+    class="llorona-scene"
+    aria-label="Interactive moonlit river, mist, and reeds"
+  >
+    <div id="laLloronaLoading" class="scene-loading">Gathering mist over the river...</div>
+    <p id="laLloronaModelStatus" class="llorona-model-status" aria-live="polite">
+      Inviting the figure into the riverbank...
+    </p>
+  </div>
+
+  <section class="llorona-story-intro" aria-labelledby="lloronaEnvironmentTitle">
+    <p class="eyebrow">A landscape for many tellings</p>
+    <h1 id="lloronaEnvironmentTitle">La Llorona</h1>
+    <p>
+      A quiet riverbank shaped around water, grief, memory, and the different
+      meanings communities carry in this living oral tradition.
+    </p>
+  </section>
+
+  <nav class="llorona-environment-nav" aria-label="La Llorona navigation">
+    <a href="/portal">Return to the world</a>
+    <a href="/legend/la-llorona">Read the sourced story</a>
+  </nav>
+
+  <aside
+    id="lloronaChat"
+    class="legend-chat llorona-chat"
+    aria-label="Conversation with La Llorona"
+    data-review-status="{{ review_status }}"
+  >
+    <header>
+      <span>La Llorona</span>
+      <small>Source-grounded conversation · English / Español</small>
+      <em>Research draft — cultural review required</em>
+    </header>
+    <div id="lloronaChatMessages" class="chat-messages" aria-live="polite">
+      <article class="chat-bubble assistant">
+        <p>
+          I am La Llorona, the Weeping Woman. Ask me about the water, the children,
+          the Otomí telling, Guatemala, or how different communities remember me.
+          I will not turn many traditions into one fixed story.
+        </p>
+      </article>
+    </div>
+    <form id="lloronaQuestionForm" class="question-panel immersive-panel" autocomplete="off">
+      <textarea
+        id="lloronaQuestion"
+        aria-label="Question about La Llorona"
+        placeholder="Ask La Llorona anything…"
+        minlength="1"
+        maxlength="500"
+      ></textarea>
+      <div>
+        <select id="lloronaLanguage" aria-label="Conversation language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+        <button id="sendLloronaQuestion" type="submit" aria-label="Send question">→</button>
+      </div>
+      <small id="lloronaChatStatus" class="llorona-chat-status" aria-live="polite">
+        Answers cite approved sources; chat history is context, never evidence.
+      </small>
+    </form>
+  </aside>
+
+  <aside class="llorona-credit" aria-label="3D character attribution">
+    <p>This work is based on "ghost_lady_wipppookgtygv" by Blakosad, licensed under CC BY 4.0.</p>
+    <div>
+      <a href="https://sketchfab.com/3d-models/ghost-lady-wipppookgtygv-7cab2c0c6f1541fb8354dc08b5b868f4" target="_blank" rel="noreferrer">Source</a>
+      <a href="https://skfb.ly/oQvKF" target="_blank" rel="noreferrer">Short link</a>
+      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">License</a>
+    </div>
+  </aside>
+
+  <div class="llorona-controls">
+    <p class="llorona-hint">Drag gently to look across the river.</p>
+    <button
+      id="toggleLloronaAmbience"
+      class="llorona-ambience"
+      type="button"
+      aria-pressed="false"
+    >
+      Hear the river
+    </button>
+    <span id="lloronaAudioStatus" class="visually-hidden" aria-live="polite"></span>
+  </div>
+</main>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+  }
+}
+</script>
+<script type="module" src="/static/la-llorona-environment.js?v=20261030-character-posed-fit"></script>
+{% endblock %}

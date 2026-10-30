@@ -9,11 +9,29 @@ experiences are:
 Visitors enter a legend's landscape, ask questions by text or microphone, and
 see the sources and regional tellings behind each answer.
 
+## Experience preview
+
+![Luanda Magere in the Kano Plains beside the source-grounded conversation panel](docs/assets/luanda-magere-character-conversation.png)
+
+*Luanda Magere speaks in the first person from the Kano Plains experience, with
+text, microphone and destination controls kept visible.*
+
+![La Llorona at the moonlit river beside the bilingual source-grounded conversation panel](docs/assets/la-llorona-character-conversation.png)
+
+*La Llorona appears in the river environment beside the English/Spanish chat,
+with the cultural-review status visible in the interface.*
+
 ## Current prototype
 
-- Three.js globe journey and Kano Plains scene
-- Licensed, rigged warrior character with moving sunlight and shadow
-- Grounded Luanda Magere conversation in English and Kiswahili
+- Three.js globe journey with labelled Kenya and Mexico destination cards
+- User-triggered procedural airship engine, wind, arrival, plains and river audio
+- Kano Plains landscape with a licensed, rigged Luanda Magere character,
+  moving sunlight and shadow
+- La Llorona moonlit riverbank with water, mist, reeds, procedural ambience,
+  an animated character, and bilingual source-grounded text conversation
+- First-person, source-grounded Luanda Magere conversation in English and Kiswahili
+- First-person La Llorona conversation in English and Spanish
+- Reviewed conversational handling for greetings, identity, help and goodbyes
 - Bounded conversation memory for natural follow-up questions
 - La Llorona narrative and source registries
 - UNAM, Smithsonian, Guatemalan government, folklore scholarship, historical
@@ -35,8 +53,8 @@ $env:LLM_API_URL = "https://api.cloudflare.com/client/v4/accounts/<account-id>/a
 $env:LLM_MODEL = "@cf/meta/llama-3.2-3b-instruct"
 ```
 
-The public demo uses Cloudflare Workers AI. A local Gemma model can be used
-through Ollama:
+The current Render configuration targets Cloudflare Workers AI. A local Gemma
+model can be used through Ollama:
 
 ```powershell
 $env:LLM_API_KEY = "ollama"
@@ -59,6 +77,8 @@ $env:ELEVENLABS_VOICE_ID = "<voice-id>"
 ```
 
 Without narration configuration, answers remain available as chat and captions.
+The public experience remains text-first until spoken character voices meet the
+project's quality, consent and cultural-review requirements.
 
 ## Run locally
 
@@ -89,6 +109,47 @@ committed to the repository.
 ["African Warrior"](https://skfb.ly/68YLs) by
 [avenirdesign](https://sketchfab.com/avenirdesign) is licensed under
 [Creative Commons Attribution 4.0](http://creativecommons.org/licenses/by/4.0/).
+
+## La Llorona experience
+
+`/portal/la-llorona` combines the moonlit river environment with a bilingual
+English/Spanish text chat. The endpoint at
+`/api/legends/la-llorona/ask` uses only `app/content/la_llorona.json` and the
+approved core entries in `app/content/la_llorona_sources.json`. Recent chat is
+bounded and supplied only as conversational context, never as evidence.
+
+The source registry deliberately remains marked
+`research_draft_requires_cultural_review`. Regional variants are preserved
+rather than flattened into a single biography, and Wikipedia appears as
+`Wikipedia contributors` with its community-edited role made explicit.
+
+The approved GLB is loaded into `LaLloronaCharacterAnchor`, normalized to the
+scene, and plays `Mournful_Idle`. If loading fails, the riverbank keeps a visible
+neutral silhouette and reports the failure without blocking the experience.
+
+### La Llorona character attribution
+
+This work is based on "ghost_lady_wipppookgtygv" by Blakosad, licensed under CC BY 4.0.
+
+- Source: https://sketchfab.com/3d-models/ghost-lady-wipppookgtygv-7cab2c0c6f1541fb8354dc08b5b868f4
+- Short link: https://skfb.ly/oQvKF
+- License: https://creativecommons.org/licenses/by/4.0/
+- Repository metadata: `app/static/models/la-llorona-model.json`
+
+## Next steps
+
+- Deploy the public Render service and record a short two-destination demo.
+- Evaluate a hosted Gemma endpoint as the primary production model, while
+  keeping the current provider-neutral validation and deterministic fallbacks.
+- Add optional, natural spoken character responses without removing text chat
+  or captions.
+- Test voice quality, pronunciation, consent and cultural appropriateness with
+  relevant community reviewers before enabling character speech by default.
+- Complete cultural review of the La Llorona research draft and regional
+  safeguards.
+- Compress and optimize the 3D models and textures for slower mobile networks.
+- Validate the complete journey on a wider range of phones and accessibility
+  settings.
 
 ## Test
 

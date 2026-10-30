@@ -1854,18 +1854,63 @@ blockquote {
   z-index: 7;
   bottom: max(24px, env(safe-area-inset-bottom));
   left: 50%;
-  display: flex;
-  gap: 16px;
-  align-items: center;
+  display: grid;
+  gap: 8px;
+  width: min(520px, calc(100vw - 32px));
+  padding: 12px;
+  color: white;
+  background: rgba(3, 11, 18, .76);
+  border: 1px solid rgba(180, 216, 235, .2);
+  border-radius: 20px;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, .32);
+  backdrop-filter: blur(16px);
   transform: translateX(-50%);
 }
 
+.portal-destinations-label {
+  color: rgba(222, 236, 244, .72);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .16em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.portal-destination-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
 .portal-destinations button {
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  background: none;
-  border: 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 52px;
+  padding: 9px 12px;
+  color: white;
+  background: rgba(255, 255, 255, .055);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    transform .2s ease;
+}
+
+.portal-destinations button:hover,
+.portal-destinations button:focus-visible {
+  background: rgba(255, 196, 92, .12);
+  border-color: rgba(255, 196, 92, .48);
+  transform: translateY(-2px);
+}
+
+.portal-destinations button.departing {
+  pointer-events: none;
+  border-color: rgba(255, 196, 92, .72);
+  animation: destination-depart .65s ease-in forwards;
 }
 
 .portal-destinations button:disabled {
@@ -1887,6 +1932,31 @@ blockquote {
   height: 8px;
   background: #ffc45c;
   box-shadow: 0 0 12px rgba(255, 178, 54, .9);
+}
+
+.destination-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.destination-copy strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.destination-copy small {
+  color: rgba(222, 236, 244, .68);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+@keyframes destination-depart {
+  to {
+    opacity: .45;
+    transform: scale(.96);
+  }
 }
 
 .visually-hidden {
@@ -1971,7 +2041,25 @@ blockquote {
 
   .portal-destinations {
     bottom: max(18px, env(safe-area-inset-bottom));
-    gap: 12px;
+    width: min(420px, calc(100vw - 24px));
+    padding: 9px;
+  }
+
+  .portal-destinations-label {
+    font-size: 8px;
+  }
+
+  .portal-destinations button {
+    min-height: 46px;
+    padding: 8px 9px;
+  }
+
+  .destination-copy strong {
+    font-size: 13px;
+  }
+
+  .destination-copy small {
+    font-size: 8px;
   }
 
   .caption-panel {
@@ -2038,5 +2126,350 @@ blockquote {
   .voice-invitation,
   .voice-invitation.leaving {
     animation: none;
+  }
+}
+
+.llorona-environment {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  min-height: 100dvh;
+  overflow: hidden;
+  color: #eef7f6;
+  background:
+    radial-gradient(circle at 68% 20%, rgba(190, 224, 224, .16), transparent 24rem),
+    #061014;
+}
+
+.llorona-scene {
+  position: absolute;
+  inset: 0;
+}
+
+.llorona-scene canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.llorona-scene .scene-loading {
+  color: rgba(228, 242, 240, .76);
+  background:
+    radial-gradient(circle at 68% 20%, rgba(181, 216, 217, .12), transparent 25rem),
+    #061014;
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.llorona-story-intro {
+  position: absolute;
+  z-index: 4;
+  top: max(22px, env(safe-area-inset-top));
+  left: max(22px, env(safe-area-inset-left));
+  width: min(480px, calc(100vw - 44px));
+  padding: 18px 20px;
+  pointer-events: none;
+  background: linear-gradient(110deg, rgba(5, 17, 21, .8), rgba(5, 17, 21, .28));
+  border-left: 2px solid rgba(183, 217, 216, .58);
+  border-radius: 0 18px 18px 0;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, .7);
+}
+
+.llorona-story-intro .eyebrow {
+  margin: 0 0 7px;
+  color: #a8ccca;
+}
+
+.llorona-story-intro h1 {
+  margin: 0;
+  font-size: clamp(34px, 6vw, 64px);
+  letter-spacing: -.035em;
+}
+
+.llorona-story-intro p:last-child {
+  max-width: 430px;
+  margin: 10px 0 0;
+  color: rgba(231, 244, 242, .76);
+  font-family: Georgia, serif;
+  font-size: clamp(13px, 1.8vw, 17px);
+  line-height: 1.55;
+}
+
+.llorona-environment-nav {
+  position: absolute;
+  z-index: 5;
+  top: max(22px, env(safe-area-inset-top));
+  right: max(22px, env(safe-area-inset-right));
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.llorona-environment-nav a,
+.llorona-ambience {
+  min-height: 44px;
+  padding: 11px 14px;
+  color: #eef7f6;
+  background: rgba(5, 16, 20, .7);
+  border: 1px solid rgba(194, 226, 224, .22);
+  border-radius: 999px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, .24);
+  backdrop-filter: blur(14px);
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.llorona-controls {
+  position: absolute;
+  z-index: 5;
+  right: max(22px, env(safe-area-inset-right));
+  bottom: max(22px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.llorona-ambience[aria-pressed="true"] {
+  color: #102527;
+  background: #b8d8d4;
+  border-color: #e4f2ef;
+}
+
+.llorona-hint {
+  margin: 0;
+  padding: 10px 13px;
+  color: rgba(231, 244, 242, .7);
+  background: rgba(5, 16, 20, .58);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  font-size: 11px;
+}
+
+.llorona-model-status {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  max-width: min(420px, calc(100vw - 40px));
+  margin: 0;
+  padding: 10px 14px;
+  color: rgba(238, 247, 246, .82);
+  background: rgba(5, 16, 20, .72);
+  border: 1px solid rgba(194, 226, 224, .2);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  font-size: 11px;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.llorona-model-status[hidden] {
+  display: none;
+}
+
+.llorona-chat {
+  top: 92px;
+  right: max(22px, env(safe-area-inset-right));
+  width: min(350px, calc(100vw - 44px));
+  max-height: calc(100dvh - 190px);
+}
+
+.llorona-chat header {
+  background: rgba(5, 20, 23, .86);
+  border-color: rgba(179, 218, 217, .22);
+}
+
+.llorona-chat header span {
+  color: #b8d8d4;
+}
+
+.llorona-chat header em {
+  margin-top: 7px;
+  color: rgba(211, 231, 229, .7);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.llorona-chat .chat-bubble.assistant {
+  background: rgba(22, 65, 66, .94);
+}
+
+.llorona-chat .chat-bubble.user {
+  color: #07191b;
+  background: #b8d8d4;
+}
+
+.llorona-chat .chat-bubble p {
+  margin: 0;
+}
+
+.llorona-chat .question-panel {
+  background: rgba(5, 20, 23, .86);
+  border-color: rgba(179, 218, 217, .22);
+}
+
+.llorona-chat-status {
+  display: block;
+  min-height: 1.3em;
+  margin-top: 8px;
+  color: rgba(225, 241, 239, .62);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.llorona-citations {
+  display: flex;
+  gap: 6px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+
+.llorona-citations a {
+  padding: 4px 7px;
+  color: #d8eeeb;
+  border: 1px solid rgba(211, 237, 234, .26);
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.llorona-credit {
+  position: absolute;
+  z-index: 5;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: max(22px, env(safe-area-inset-left));
+  width: min(470px, calc(100vw - 470px));
+  padding: 9px 12px;
+  color: rgba(226, 241, 239, .72);
+  background: rgba(5, 16, 20, .64);
+  border: 1px solid rgba(194, 226, 224, .16);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.llorona-credit p {
+  margin: 0;
+}
+
+.llorona-credit div {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.llorona-credit a {
+  color: #b8d8d4;
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .llorona-story-intro {
+    top: max(14px, env(safe-area-inset-top));
+    left: max(14px, env(safe-area-inset-left));
+    width: min(310px, calc(100vw - 28px));
+    padding: 13px 15px;
+  }
+
+  .llorona-story-intro h1 {
+    font-size: clamp(31px, 11vw, 46px);
+  }
+
+  .llorona-story-intro p:last-child {
+    display: none;
+  }
+
+  .llorona-environment-nav {
+    top: max(108px, calc(env(safe-area-inset-top) + 108px));
+    right: auto;
+    bottom: auto;
+    left: max(12px, env(safe-area-inset-left));
+    justify-content: flex-start;
+  }
+
+  .llorona-chat {
+    top: max(166px, calc(env(safe-area-inset-top) + 166px));
+    right: max(12px, env(safe-area-inset-right));
+    left: max(12px, env(safe-area-inset-left));
+    width: auto;
+    max-height: calc(100dvh - 260px);
+  }
+
+  .llorona-chat header {
+    padding: 9px 12px;
+  }
+
+  .llorona-chat .chat-messages {
+    min-height: 80px;
+  }
+
+  .llorona-chat .question-panel textarea {
+    min-height: 44px;
+  }
+
+  .llorona-credit {
+    bottom: max(66px, calc(env(safe-area-inset-bottom) + 66px));
+    left: max(12px, env(safe-area-inset-left));
+    width: min(61vw, 360px);
+    padding: 7px 9px;
+    font-size: 8px;
+  }
+
+  .llorona-credit div {
+    gap: 7px;
+  }
+
+  .llorona-controls {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(14px, env(safe-area-inset-bottom));
+    left: max(12px, env(safe-area-inset-left));
+    justify-content: space-between;
+  }
+
+  .llorona-hint {
+    max-width: 58vw;
+    border-radius: 14px;
+    line-height: 1.35;
+  }
+}
+
+@media (max-height: 560px) and (orientation: landscape) {
+  .llorona-story-intro p:last-child {
+    display: none;
+  }
+
+  .llorona-environment-nav {
+    top: max(10px, env(safe-area-inset-top));
+    right: max(10px, env(safe-area-inset-right));
+    bottom: auto;
+    left: auto;
+  }
+
+  .llorona-chat {
+    top: max(62px, calc(env(safe-area-inset-top) + 62px));
+    right: max(10px, env(safe-area-inset-right));
+    left: auto;
+    width: min(340px, 48vw);
+    max-height: calc(100dvh - 130px);
+  }
+
+  .llorona-credit {
+    right: auto;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: max(10px, env(safe-area-inset-left));
+    width: min(42vw, 330px);
+    padding: 5px 7px;
+    font-size: 7px;
   }
 }

@@ -120,7 +120,7 @@ if (container) {
     { id: "luanda-magere", latitude: -0.1, longitude: 34.75, active: true },
     { id: "anansi", latitude: 7.95, longitude: -1.03 },
     { id: "sundiata", latitude: 17.57, longitude: -3.99 },
-    { id: "la-llorona", latitude: 23.63, longitude: -102.55 },
+    { id: "la-llorona", latitude: 23.63, longitude: -102.55, active: true },
     { id: "el-cadejo", latitude: 14.62, longitude: -90.52 },
   ];
 
@@ -138,8 +138,10 @@ if (container) {
     marker.userData.destination = destination.id;
     earth.add(marker);
 
-    if (destination.active) {
+    if (destination.id === "luanda-magere") {
       kenyaMarker = marker;
+    }
+    if (destination.active) {
       const halo = new THREE.Mesh(
         new THREE.RingGeometry(0.1, 0.16, 32),
         new THREE.MeshBasicMaterial({
@@ -585,7 +587,99 @@ if (container) {
   let ambienceContext = null;
   let ambienceMaster = null;
   let ambienceTimer = null;
+  let journeyAudioContext = null;
   let lastRenderedAt = 0;
+
+  const playAirshipJourneySound = async (duration = 4.8) => {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+      return;
+    }
+    if (journeyAudioContext) {
+      await journeyAudioContext.close();
+    }
+    const context = new AudioContextClass();
+    journeyAudioContext = context;
+    try {
+      await context.resume();
+      if (context.state !== "running") {
+        throw new Error("The browser did not start the journey audio context.");
+      }
+      const now = context.currentTime;
+      const master = context.createGain();
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.exponentialRampToValueAtTime(0.16, now + 0.18);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      master.connect(context.destination);
+
+      [58, 91].forEach((frequency, index) => {
+        const engine = context.createOscillator();
+        const engineGain = context.createGain();
+        engine.type = index ? "triangle" : "sine";
+        engine.frequency.setValueAtTime(frequency, now);
+        engine.frequency.exponentialRampToValueAtTime(
+          frequency * (index ? 1.45 : 0.72),
+          now + duration,
+        );
+        engineGain.gain.value = index ? 0.18 : 0.3;
+        engine.connect(engineGain).connect(master);
+        engine.start(now);
+        engine.stop(now + duration);
+      });
+
+      const noiseBuffer = context.createBuffer(
+        1,
+        Math.ceil(context.sampleRate * duration),
+        context.sampleRate,
+      );
+      const noiseData = noiseBuffer.getChannelData(0);
+      for (let index = 0; index < noiseData.length; index += 1) {
+        noiseData[index] = Math.random() * 2 - 1;
+      }
+      const wind = context.createBufferSource();
+      const windFilter = context.createBiquadFilter();
+      const windGain = context.createGain();
+      wind.buffer = noiseBuffer;
+      windFilter.type = "bandpass";
+      windFilter.frequency.setValueAtTime(260, now);
+      windFilter.frequency.exponentialRampToValueAtTime(1450, now + duration * 0.58);
+      windFilter.frequency.exponentialRampToValueAtTime(420, now + duration);
+      windFilter.Q.value = 0.72;
+      windGain.gain.setValueAtTime(0.02, now);
+      windGain.gain.linearRampToValueAtTime(0.46, now + duration * 0.52);
+      windGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      wind.connect(windFilter).connect(windGain).connect(master);
+      wind.start(now);
+      wind.stop(now + duration);
+
+      const arrival = context.createOscillator();
+      const arrivalGain = context.createGain();
+      arrival.type = "sine";
+      arrival.frequency.setValueAtTime(440, now + duration * 0.64);
+      arrival.frequency.exponentialRampToValueAtTime(660, now + duration * 0.9);
+      arrivalGain.gain.setValueAtTime(0.0001, now + duration * 0.62);
+      arrivalGain.gain.exponentialRampToValueAtTime(0.12, now + duration * 0.7);
+      arrivalGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      arrival.connect(arrivalGain).connect(master);
+      arrival.start(now + duration * 0.62);
+      arrival.stop(now + duration);
+
+      window.setTimeout(() => {
+        if (journeyAudioContext === context) {
+          context.close();
+          journeyAudioContext = null;
+        }
+      }, duration * 1000 + 250);
+    } catch (error) {
+      await context.close();
+      journeyAudioContext = null;
+      console.warn("Could not start the airship journey sound.", error);
+    }
+  };
+  window.hadithi = window.hadithi || {};
+  window.hadithi.getJourneyAudioState = () => ({
+    state: journeyAudioContext?.state || "inactive",
+  });
 
   const stopNarration = () => {
     window.speechSynthesis?.cancel();
@@ -628,6 +722,7 @@ if (container) {
     window.setTimeout(() => context.close(), 500);
     ambienceContext = null;
     ambienceMaster = null;
+    showVoiceMessage("Kano Plains ambience off.");
   };
 
   const startAmbience = async () => {
@@ -636,63 +731,106 @@ if (container) {
       showVoiceMessage("Ambient audio is unavailable in this browser.");
       return;
     }
-    ambienceContext = new AudioContextClass();
-    ambienceMaster = ambienceContext.createGain();
-    ambienceMaster.gain.value = 0.035;
-    ambienceMaster.connect(ambienceContext.destination);
+    const context = new AudioContextClass();
+    ambienceContext = context;
 
-    [110, 164.81].forEach((frequency, index) => {
-      const oscillator = ambienceContext.createOscillator();
-      const gain = ambienceContext.createGain();
-      oscillator.type = index ? "sine" : "triangle";
-      oscillator.frequency.value = frequency;
-      gain.gain.value = index ? 0.08 : 0.12;
-      oscillator.connect(gain).connect(ambienceMaster);
-      oscillator.start();
-    });
-
-    const noiseBuffer = ambienceContext.createBuffer(
-      1,
-      ambienceContext.sampleRate * 2,
-      ambienceContext.sampleRate,
-    );
-    const noiseData = noiseBuffer.getChannelData(0);
-    for (let index = 0; index < noiseData.length; index += 1) {
-      noiseData[index] = Math.random() * 2 - 1;
-    }
-    const noise = ambienceContext.createBufferSource();
-    const filter = ambienceContext.createBiquadFilter();
-    const noiseGain = ambienceContext.createGain();
-    noise.buffer = noiseBuffer;
-    noise.loop = true;
-    filter.type = "lowpass";
-    filter.frequency.value = 520;
-    noiseGain.gain.value = 0.045;
-    noise.connect(filter).connect(noiseGain).connect(ambienceMaster);
-    noise.start();
-
-    const scheduleTone = () => {
-      if (!ambienceContext || !ambienceMaster) {
-        return;
+    try {
+      await context.resume();
+      if (context.state !== "running") {
+        throw new Error("The browser did not start the audio context.");
       }
-      const notes = [220, 246.94, 293.66, 329.63, 392];
-      const oscillator = ambienceContext.createOscillator();
-      const gain = ambienceContext.createGain();
-      const now = ambienceContext.currentTime;
-      oscillator.type = "sine";
-      oscillator.frequency.value = notes[Math.floor(Math.random() * notes.length)];
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.22, now + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.7);
-      oscillator.connect(gain).connect(ambienceMaster);
-      oscillator.start(now);
-      oscillator.stop(now + 1.8);
-      ambienceTimer = window.setTimeout(scheduleTone, 2600 + Math.random() * 2800);
-    };
-    scheduleTone();
-    await ambienceContext.resume();
-    toggleAmbienceButton.classList.add("active");
-    toggleAmbienceButton.setAttribute("aria-pressed", "true");
+
+      ambienceMaster = context.createGain();
+      ambienceMaster.gain.setValueAtTime(0.0001, context.currentTime);
+      ambienceMaster.gain.exponentialRampToValueAtTime(0.2, context.currentTime + 0.8);
+      ambienceMaster.connect(context.destination);
+
+      const noiseBuffer = context.createBuffer(1, context.sampleRate * 3, context.sampleRate);
+      const noiseData = noiseBuffer.getChannelData(0);
+      for (let index = 0; index < noiseData.length; index += 1) {
+        noiseData[index] = Math.random() * 2 - 1;
+      }
+
+      const breeze = context.createBufferSource();
+      const breezeFilter = context.createBiquadFilter();
+      const breezeGain = context.createGain();
+      breeze.buffer = noiseBuffer;
+      breeze.loop = true;
+      breezeFilter.type = "lowpass";
+      breezeFilter.frequency.value = 760;
+      breezeFilter.Q.value = 0.7;
+      breezeGain.gain.value = 0.3;
+      breeze.connect(breezeFilter).connect(breezeGain).connect(ambienceMaster);
+      breeze.start();
+
+      const insects = context.createBufferSource();
+      const insectFilter = context.createBiquadFilter();
+      const insectGain = context.createGain();
+      insects.buffer = noiseBuffer;
+      insects.loop = true;
+      insectFilter.type = "bandpass";
+      insectFilter.frequency.value = 4200;
+      insectFilter.Q.value = 4.5;
+      insectGain.gain.value = 0.055;
+      insects.connect(insectFilter).connect(insectGain).connect(ambienceMaster);
+      insects.start();
+
+      const playBirdCall = (startAt) => {
+        [0, 0.16].forEach((offset, index) => {
+          const bird = context.createOscillator();
+          const birdGain = context.createGain();
+          const starts = startAt + offset;
+          bird.type = "sine";
+          bird.frequency.setValueAtTime(index ? 1850 : 1500, starts);
+          bird.frequency.exponentialRampToValueAtTime(index ? 2450 : 2050, starts + 0.12);
+          birdGain.gain.setValueAtTime(0.0001, starts);
+          birdGain.gain.exponentialRampToValueAtTime(0.11, starts + 0.025);
+          birdGain.gain.exponentialRampToValueAtTime(0.0001, starts + 0.2);
+          bird.connect(birdGain).connect(ambienceMaster);
+          bird.start(starts);
+          bird.stop(starts + 0.22);
+        });
+      };
+
+      const playDistantPercussion = (startAt) => {
+        const drum = context.createOscillator();
+        const drumGain = context.createGain();
+        drum.type = "sine";
+        drum.frequency.setValueAtTime(92, startAt);
+        drum.frequency.exponentialRampToValueAtTime(58, startAt + 0.32);
+        drumGain.gain.setValueAtTime(0.0001, startAt);
+        drumGain.gain.exponentialRampToValueAtTime(0.19, startAt + 0.018);
+        drumGain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.7);
+        drum.connect(drumGain).connect(ambienceMaster);
+        drum.start(startAt);
+        drum.stop(startAt + 0.72);
+      };
+
+      const scheduleLandscapeDetail = () => {
+        if (ambienceContext !== context || !ambienceMaster) {
+          return;
+        }
+        const now = context.currentTime + 0.04;
+        if (Math.random() > 0.38) {
+          playBirdCall(now);
+        } else {
+          playDistantPercussion(now);
+        }
+        ambienceTimer = window.setTimeout(
+          scheduleLandscapeDetail,
+          3800 + Math.random() * 4200,
+        );
+      };
+      scheduleLandscapeDetail();
+      toggleAmbienceButton.classList.add("active");
+      toggleAmbienceButton.setAttribute("aria-pressed", "true");
+      showVoiceMessage("Kano Plains ambience on: breeze, insects, birds, and distant percussion.");
+    } catch (error) {
+      await context.close();
+      ambienceContext = null;
+      ambienceMaster = null;
+      showVoiceMessage(`Ambient audio could not start: ${error.message}`);
+    }
   };
 
   const animateSilentReply = (text) => {
@@ -760,12 +898,18 @@ if (container) {
     );
   };
 
-  enterPortal.addEventListener("click", () => {
+  const startKenyaJourney = () => {
+    if (journeyStartedAt !== null || landscapeActive) {
+      return;
+    }
     enterPortal.disabled = true;
     enterPortal.classList.add("entering");
     journeyStartedAt = clock.getElapsedTime();
     locationMarker.hidden = false;
-  });
+    playAirshipJourneySound();
+  };
+
+  enterPortal.addEventListener("click", startKenyaJourney);
 
   document.querySelector("#sunPosition").addEventListener("input", (event) => {
     updateSun(event.target.value);
@@ -1033,6 +1177,21 @@ if (container) {
   };
   voiceQuestionButton.addEventListener("click", beginVoiceQuestion);
   voiceInvitation.addEventListener("click", beginVoiceQuestion);
+  document.querySelectorAll("[data-legend]").forEach((destinationButton) => {
+    destinationButton.addEventListener("click", () => {
+      if (destinationButton.dataset.legend === "la-llorona") {
+        destinationButton.classList.add("departing");
+        playAirshipJourneySound(1.35);
+        window.setTimeout(() => {
+          window.location.assign("/portal/la-llorona");
+        }, reducedMotion ? 120 : 650);
+        return;
+      }
+      if (destinationButton.dataset.legend === "luanda-magere" && !landscapeActive) {
+        startKenyaJourney();
+      }
+    });
+  });
 
   const resize = () => {
     const width = container.clientWidth;
