@@ -2,7 +2,7 @@ const currentPath = window.location.pathname;
 
 document.querySelectorAll("[data-nav-path]").forEach((link) => {
   const path = link.dataset.navPath;
-  if (path === "/" ? currentPath === "/" : currentPath.startsWith(path)) {
+  if (currentPath.startsWith(path) || (currentPath === "/" && path === "/portal")) {
     link.classList.add("active");
   }
 });

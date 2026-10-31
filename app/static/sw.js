@@ -1,6 +1,7 @@
-const CACHE_NAME = "hadithi-legends-v7";
+const CACHE_NAME = "hadithi-legends-v8";
 const SHELL = [
   "/",
+  "/about",
   "/portal",
   "/portal/la-llorona",
   "/legend/luanda-magere",

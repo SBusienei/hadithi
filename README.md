@@ -89,6 +89,15 @@ py -3.13 -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 Open `http://127.0.0.1:8000`.
 
+The root URL opens the interactive world portal directly; `/portal` remains an
+alias for the same experience. The introduction and project principles are
+available at `/about`, and the sourced reading pages remain under `/legend/`.
+
+Character replies use a friendly, everyday first-person tone, without invented
+memories or cultural details. Short greetings and reviewed fallback responses
+also use conversational language. Source validation and regional safeguards
+remain unchanged; generated phrasing can vary by model.
+
 ## Deploy to Render
 
 `render.yaml` provisions one Frankfurt web service on the `1c-2g` compute plan.

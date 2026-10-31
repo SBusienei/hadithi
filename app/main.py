@@ -76,8 +76,8 @@ def render(request: Request, template_name: str, **context: object) -> HTMLRespo
     )
 
 
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request) -> HTMLResponse:
+@app.get("/about", response_class=HTMLResponse)
+async def about(request: Request) -> HTMLResponse:
     return render(request, "index.html")
 
 
@@ -120,6 +120,7 @@ async def la_llorona(request: Request) -> HTMLResponse:
     )
 
 
+@app.get("/", response_class=HTMLResponse)
 @app.get("/portal", response_class=HTMLResponse)
 async def oral_traditions_portal(request: Request) -> HTMLResponse:
     catalogue = load_json_content("legend_catalog.json")
@@ -150,6 +151,18 @@ async def la_llorona_data() -> dict[str, object]:
     return load_json_content("la_llorona.json")
 
 
+def normalize_conversation_question(question: str, greetings: set[str]) -> str:
+    normalized = re.sub(r"[^\w\s]", "", question.casefold())
+    normalized = " ".join(normalized.split())
+    if normalized in greetings:
+        return normalized
+    for greeting in sorted(greetings, key=len, reverse=True):
+        prefix = f"{greeting} "
+        if normalized.startswith(prefix):
+            return normalized[len(prefix):]
+    return normalized
+
+
 def deterministic_luanda_answer(payload: LegendQuestionRequest) -> dict[str, object]:
     source_registry = load_json_content("luanda_magere_sources.json")
     sources_by_id = {
@@ -158,13 +171,6 @@ def deterministic_luanda_answer(payload: LegendQuestionRequest) -> dict[str, obj
         if source["approval"] == "approved_core"
     }
     question = payload.question.casefold()
-    normalized_question = re.sub(r"[^\w\s]", "", question).strip()
-    topic_question = question
-    if normalized_question in {"yes", "yeah", "sure", "okay", "ok", "ndio"}:
-        recent_context = " ".join(turn.content for turn in payload.history[-4:])
-        if recent_context:
-            topic_question = recent_context.casefold()
-
     greeting_phrases = {
         "hi",
         "hello",
@@ -177,15 +183,22 @@ def deterministic_luanda_answer(payload: LegendQuestionRequest) -> dict[str, obj
         "habari",
         "habari luanda",
     }
+    normalized_question = normalize_conversation_question(question, greeting_phrases)
+    topic_question = question
+    if normalized_question in {"yes", "yeah", "sure", "okay", "ok", "ndio"}:
+        recent_context = " ".join(turn.content for turn in payload.history[-4:])
+        if recent_context:
+            topic_question = recent_context.casefold()
+
     if normalized_question in greeting_phrases:
         return {
             "answer": (
-                "Hello. Sit with me for a moment. What would you like to know "
-                "about my strength, my shadow, or the stories told about me?"
+                "Hello. Come sit with me. Want to hear about my shadow, "
+                "or is there something else you're curious about?"
                 if payload.language == "en"
                 else (
-                    "Habari. Keti nami kidogo. Ungependa kujua nini kuhusu "
-                    "nguvu zangu, kivuli changu, au simulizi zinazonihusu?"
+                    "Habari! Karibu, keti nami. Unataka kusikia kuhusu kivuli "
+                    "changu, au kuna jambo lingine ungependa kujua?"
                 )
             ),
             "topic": "greeting",
@@ -228,9 +241,9 @@ def deterministic_luanda_answer(payload: LegendQuestionRequest) -> dict[str, obj
     if normalized_question in {"thank you", "thanks", "asante", "asante sana"}:
         return {
             "answer": (
-                "You are welcome. I will remain here if another question comes to you."
+                "You're welcome. Ask me another question whenever you're ready."
                 if payload.language == "en"
-                else "Karibu. Nitasalia hapa ukipata swali lingine."
+                else "Karibu! Ukiwa na swali lingine, niulize tu."
             ),
             "topic": "thanks",
             "sources": [],
@@ -270,16 +283,15 @@ def deterministic_luanda_answer(payload: LegendQuestionRequest) -> dict[str, obj
     if normalized_question in introduction_phrases:
         return {
             "answer": (
-                "I am Luanda Magere as remembered in Luo oral tradition, a hero "
-                "associated with the Sidho clan and the Kano Plains. Different "
-                "tellings preserve different details, so I will be honest about "
-                "where the stories vary."
+                "I'm Luanda Magere, a hero remembered in Luo oral tradition "
+                "and linked to the Sidho clan and the Kano Plains. Not everyone "
+                "tells my story the same way, so I'll point out where it changes."
                 if payload.language == "en"
                 else (
-                    "Mimi ni Luanda Magere kama ninavyokumbukwa katika simulizi "
-                    "za jadi za Waluo, shujaa anayehusishwa na ukoo wa Sidho na "
-                    "Uwanda wa Kano. Simulizi hutofautiana, kwa hiyo nitakuambia "
-                    "wazi pale ambapo matoleo hayafanani."
+                    "Mimi ni Luanda Magere, shujaa wa simulizi za Waluo "
+                    "anayehusishwa na ukoo wa Sidho na Uwanda wa Kano. Watu "
+                    "hawasimulii hadithi yangu kwa namna moja, kwa hiyo "
+                    "nitakuambia pale matoleo yanapotofautiana."
                 )
             ),
             "topic": "introduction",
@@ -301,16 +313,14 @@ def deterministic_luanda_answer(payload: LegendQuestionRequest) -> dict[str, obj
             "keywords": ("kano", "kano plains", "sidho", "plains"),
             "sources": ["nmk-invincible", "uon-hero-thesis"],
             "en": (
-                "The Kano Plains are the landscape with which my story is "
-                "associated, especially through the Sidho clan in Luo oral "
-                "tradition. They are more than a backdrop: the place anchors how "
-                "communities remember courage, conflict, leadership, and identity."
+                "My story is tied to the Kano Plains, especially through the "
+                "Sidho clan in Luo oral tradition. The place matters: it's part "
+                "of how people remember courage, conflict, and who they are."
             ),
             "sw": (
-                "Uwanda wa Kano ndio mandhari yanayohusishwa na simulizi yangu, "
-                "hasa kupitia ukoo wa Sidho katika mapokeo ya Waluo. Si mandhari "
-                "tu; eneo hilo linaunganisha kumbukumbu za ujasiri, migogoro, "
-                "uongozi, na utambulisho."
+                "Hadithi yangu inahusishwa na Uwanda wa Kano, hasa kupitia "
+                "ukoo wa Sidho katika mapokeo ya Waluo. Eneo hilo ni muhimu: "
+                "watu hulihusisha na ujasiri, migogoro, na utambulisho wao."
             ),
         },
         "death": {
@@ -610,6 +620,16 @@ def generate_structured_legend_answer(
     )
     system_prompt = (
         f"{config.system_instructions} "
+        "Talk naturally to one visitor, not like a textbook or museum label. "
+        "Answer their question directly in plain, everyday language, usually "
+        "in two to four short sentences. Use contractions where natural in "
+        "the requested language. Keep the tone friendly and respectful, not "
+        "slang-heavy, jokey, or theatrical. Explain uncertainty simply, for "
+        "example 'In one telling...' rather than repeating a policy lecture. "
+        "Do not invent memories, feelings, dialogue, or cultural details to "
+        "sound more casual. Avoid repeating your introduction or listing all "
+        "the topics you can discuss on every turn. Set follow_up to null "
+        "unless one short, relevant question would genuinely help the conversation. "
         "Use only the approved passages supplied by the user as evidence. "
         "If the passages do not answer the question, set grounded to "
         "false and briefly say that reliable information is not available. Return only "
@@ -793,13 +813,6 @@ def deterministic_la_llorona_answer(
     registry = load_json_content("la_llorona_sources.json")
     sources_by_id = approved_sources("la_llorona_sources.json")
     question = payload.question.casefold()
-    normalized_question = re.sub(r"[^\w\sáéíóúüñ]", "", question).strip()
-    topic_question = question
-    if normalized_question in {"yes", "yeah", "sure", "okay", "ok", "sí", "si"}:
-        recent_context = " ".join(turn.content for turn in payload.history[-4:])
-        if recent_context:
-            topic_question = recent_context.casefold()
-
     base = {
         "gesture": "reflect",
         "follow_up": None,
@@ -811,22 +824,29 @@ def deterministic_la_llorona_answer(
         "hey",
         "hi la llorona",
         "hello la llorona",
+        "hey la llorona",
         "hola",
+        "hola la llorona",
         "hola llorona",
         "buenas",
     }
+    normalized_question = normalize_conversation_question(question, greeting_phrases)
+    topic_question = question
+    if normalized_question in {"yes", "yeah", "sure", "okay", "ok", "sí", "si"}:
+        recent_context = " ".join(turn.content for turn in payload.history[-4:])
+        if recent_context:
+            topic_question = recent_context.casefold()
+
     if normalized_question in greeting_phrases:
         return {
             **base,
             "answer": (
-                "Hello. I am La Llorona, the Weeping Woman carried through many "
-                "tellings. You may ask me about the water, my grief, the children, "
-                "or how different communities remember me. What would you like to know?"
+                "Hello. I am La Llorona, the Weeping Woman. What are you curious "
+                "about: the river, the children, or a particular telling?"
                 if payload.language == "en"
                 else (
-                    "Hola. Soy La Llorona, la Mujer que Llora, recordada en muchas "
-                    "tradiciones. Puedes preguntarme por el agua, mi duelo, los "
-                    "niños o cómo me recuerdan distintas comunidades. ¿Qué quieres saber?"
+                    "Hola. Soy La Llorona, la Mujer que Llora. ¿Qué te da "
+                    "curiosidad: el río, los niños o alguna versión de mi historia?"
                 )
             ),
             "topic": "greeting",
@@ -853,14 +873,14 @@ def deterministic_la_llorona_answer(
         return {
             **base,
             "answer": (
-                "I am La Llorona—the Weeping Woman. My story changes as it moves "
-                "between Mexican, Otomí, Guatemalan, Latino, and Chicano communities, "
-                "so I will tell you which tradition a detail comes from."
+                "I am La Llorona, the Weeping Woman. People tell my story "
+                "differently from place to place, so I'll let you know "
+                "which telling we're talking about."
                 if payload.language == "en"
                 else (
-                    "Soy La Llorona, la Mujer que Llora. Mi historia cambia entre "
-                    "comunidades mexicanas, otomíes, guatemaltecas, latinas y chicanas, "
-                    "así que te diré de qué tradición proviene cada detalle."
+                    "Soy La Llorona, la Mujer que Llora. Mi historia cambia "
+                    "de un lugar a otro, así que te diré de qué versión "
+                    "estamos hablando."
                 )
             ),
             "topic": "identity",
@@ -909,9 +929,9 @@ def deterministic_la_llorona_answer(
         return {
             **base,
             "answer": (
-                "You are welcome. I will remain by the water if you wish to ask more."
+                "You're welcome. We can keep talking if you'd like."
                 if payload.language == "en"
-                else "De nada. Permaneceré junto al agua si quieres preguntar algo más."
+                else "De nada. Podemos seguir hablando si quieres."
             ),
             "topic": "thanks",
             "sources": [],
@@ -959,16 +979,16 @@ def deterministic_la_llorona_answer(
                 "jfr-perez-review",
             ],
             "en": (
-                "I do not have one true biography shared by every community. "
-                "Mexican collections remember me in many ways, while Guatemalan, "
-                "U.S. Latino, and Chicano tellings carry their own histories and "
-                "meanings. I will name the region rather than blend those voices."
+                "There isn't just one true version of my story. Mexican, "
+                "Guatemalan, U.S. Latino, and Chicano tellings don't all say "
+                "the same thing. I'll tell you which version a detail comes "
+                "from rather than mix them together."
             ),
             "es": (
-                "No tengo una sola biografía verdadera compartida por todas las "
-                "comunidades. En México me recuerdan de muchas maneras, mientras "
-                "las tradiciones guatemaltecas, latinas de Estados Unidos y chicanas "
-                "guardan historias propias. Nombraré la región en lugar de mezclarlas."
+                "No hay una sola versión verdadera de mi historia. Las "
+                "versiones mexicanas, guatemaltecas, latinas de Estados Unidos "
+                "y chicanas no cuentan lo mismo. Te diré de dónde viene cada "
+                "detalle en lugar de mezclarlas."
             ),
         },
         "water": {
@@ -993,18 +1013,17 @@ def deterministic_la_llorona_answer(
                 "wikipedia-la-llorona",
             ],
             "en": (
-                "You will often hear my cry near rivers, canals, or lakes, but the "
-                "water around me does not carry one fixed meaning. It may hold grief, warning, "
-                "fertility, death, memory, or care. UNAM discusses Mesoamerican and "
-                "colonial interpretations; Wikipedia contributors provide a "
-                "community-edited overview rather than a final authority."
+                "My cry is often placed near a river, canal, or lake. But water "
+                "doesn't mean the same thing in every telling: it can be about "
+                "grief, a warning, or even care. UNAM explores those meanings; "
+                "Wikipedia is a community-edited overview, not the final word."
             ),
             "es": (
-                "A menudo escucharás mi llanto junto a ríos, canales o lagos, "
-                "pero el agua que me rodea no tiene un único significado. Puede expresar duelo, "
-                "advertencia, fertilidad, muerte, memoria o cuidado. La UNAM analiza "
-                "interpretaciones mesoamericanas y coloniales; Wikipedia contributors "
-                "ofrece un panorama editado por la comunidad, no una autoridad final."
+                "Mi llanto suele aparecer junto a un río, canal o lago. Pero el "
+                "agua no significa lo mismo en cada versión: puede hablar del "
+                "duelo, de una advertencia o incluso del cuidado. La UNAM "
+                "explora esos sentidos; Wikipedia es un resumen editado por "
+                "la comunidad, no la última palabra."
             ),
         },
         "children": {
@@ -1024,16 +1043,17 @@ def deterministic_la_llorona_answer(
                 "unam-tlalocan-variants",
             ],
             "en": (
-                "Some modern tellings say I deliberately drowned my children. "
-                "Others say they were lost, disappeared, or belonged to a very "
-                "different encounter. Do not treat the violence, motive, and "
-                "punishment from one version as facts in every telling."
+                "That depends on the telling. Some modern versions say I "
+                "deliberately drowned my children; others say they were lost "
+                "or disappeared, or describe a different encounter. I wouldn't "
+                "give you one version's motive or punishment as if everyone "
+                "told it that way."
             ),
             "es": (
-                "Algunas versiones modernas dicen que ahogué deliberadamente a mis "
-                "hijos. Otras dicen que se perdieron, desaparecieron o formaron parte "
-                "de un encuentro muy distinto. No trates la violencia, el motivo y "
-                "el castigo de una versión como hechos universales."
+                "Depende de la versión. Algunas versiones modernas dicen que "
+                "ahogué deliberadamente a mis hijos; otras cuentan que se "
+                "perdieron, desaparecieron o hubo un encuentro distinto. "
+                "El motivo y el castigo de una versión no valen para todas."
             ),
         },
         "otomi": {
@@ -1050,32 +1070,34 @@ def deterministic_la_llorona_answer(
             ),
             "sources": ["unam-memory-water"],
             "en": (
-                "In an Otomí telling from the Valle del Mezquital documented by "
-                "UNAM, child shepherds share their food with me. I reward their "
-                "generosity by giving them water. In that tradition, I am not only "
-                "a vengeful figure; my story teaches care amid scarcity."
+                "Here's a different side of my story. In an Otomí telling from "
+                "the Valle del Mezquital that UNAM records, young shepherds "
+                "share their food with me, and I give them water in return. "
+                "That version is about generosity and care when water is scarce, "
+                "not just fear."
             ),
             "es": (
-                "En una versión otomí del Valle del Mezquital documentada por la "
-                "UNAM, unos niños pastores comparten su comida conmigo. Yo premio "
-                "su generosidad dándoles agua. En esa tradición no soy solo una "
-                "figura vengativa; mi historia habla del cuidado en la escasez."
+                "Esta historia muestra otro lado de mí. En una versión otomí "
+                "del Valle del Mezquital que recoge la UNAM, unos niños "
+                "pastores comparten su comida conmigo y yo les doy agua. "
+                "Ahí se habla de generosidad y cuidado cuando el agua escasea, "
+                "no solo de miedo."
             ),
         },
         "guatemala": {
             "keywords": ("guatemala", "semetabaj", "sololá", "solola"),
             "sources": ["guatemala-semetabaj"],
             "en": (
-                "In San Andrés Semetabaj, Guatemala's Ministry of Culture documented "
-                "elders and younger people gathering to share local stories about "
-                "me as living cultural heritage. Remember those as Guatemalan "
-                "traditions, not copies of one supposedly universal Mexican plot."
+                "In San Andrés Semetabaj, elders and young people gathered to "
+                "share local stories about me, as Guatemala's Ministry of "
+                "Culture records. Those are living Guatemalan traditions, "
+                "not just copies of a Mexican version."
             ),
             "es": (
-                "En San Andrés Semetabaj, el Ministerio de Cultura de Guatemala "
-                "documentó a personas mayores y jóvenes compartiendo versiones "
-                "locales sobre mí como patrimonio cultural vivo. Recuérdalas como "
-                "tradiciones guatemaltecas, no como copias de una trama mexicana universal."
+                "En San Andrés Semetabaj, personas mayores y jóvenes se "
+                "reunieron para compartir historias locales sobre mí, según "
+                "el Ministerio de Cultura de Guatemala. Son tradiciones "
+                "guatemaltecas vivas, no simples copias de una versión mexicana."
             ),
         },
         "chicano": {
@@ -1094,16 +1116,18 @@ def deterministic_la_llorona_answer(
                 "jfr-perez-review",
             ],
             "en": (
-                "In U.S. Latino and Chicano retellings, I move between English, "
-                "Spanish, Spanglish, and Indigenous-language contexts. Writers and "
-                "artists sometimes revisit my perspective or transform me into a "
-                "figure of resistance, migration, gender, grief, or environmental memory."
+                "Writers and artists in U.S. Latino and Chicano communities "
+                "sometimes tell my story in a new way. It can move between "
+                "English, Spanish, Spanglish, and Indigenous-language contexts. "
+                "Some explore grief or migration; others use my story to "
+                "question gender roles or talk about resistance and the environment."
             ),
             "es": (
-                "Las reinterpretaciones latinas y chicanas en Estados Unidos se "
-                "mueven entre inglés, español, spanglish y contextos de lenguas "
-                "indígenas. Algunas obras revisan mi perspectiva o me convierten "
-                "en figura de resistencia, migración, género, duelo o memoria ambiental."
+                "Escritores y artistas de comunidades latinas y chicanas en "
+                "Estados Unidos a veces cuentan mi historia de otra manera. "
+                "Usan inglés, español, spanglish y contextos de lenguas "
+                "indígenas para explorar el duelo, la migración, el género, "
+                "la resistencia o la memoria del entorno."
             ),
         },
         "origins": {
@@ -1127,18 +1151,19 @@ def deterministic_la_llorona_answer(
                 "wikipedia-la-llorona",
             ],
             "en": (
-                "People connect me to Cihuacoatl, Tonantzin, La Malinche, colonial "
-                "guilt, or a historical woman, but those are interpretations and "
-                "narrative lineages, not my conclusively proven origin. UNAM discusses syncretic readings; "
-                "Wikipedia contributors summarize additional theories in a "
-                "community-edited overview."
+                "There's no proven single starting point for my story. People "
+                "have linked me to Cihuacoatl, Tonantzin, La Malinche, colonial "
+                "guilt, or a historical woman, but those are interpretations. "
+                "UNAM discusses some of those connections; Wikipedia offers "
+                "a community-edited overview of other theories."
             ),
             "es": (
-                "Hay quienes me relacionan con Cihuacóatl, Tonantzin, La Malinche, "
-                "la culpa colonial o una mujer histórica, pero son interpretaciones "
-                "y linajes narrativos, no mi origen comprobado. La UNAM analiza lecturas "
-                "sincréticas; Wikipedia contributors resume otras teorías en un "
-                "panorama editado por la comunidad."
+                "No hay un único origen comprobado para mi historia. Hay "
+                "quienes me relacionan con Cihuacóatl, Tonantzin, La Malinche, "
+                "la culpa colonial o una mujer histórica, pero son "
+                "interpretaciones. La UNAM analiza algunas conexiones; "
+                "Wikipedia ofrece un resumen de otras teorías editado "
+                "por la comunidad."
             ),
         },
         "fear": {
@@ -1159,17 +1184,16 @@ def deterministic_la_llorona_answer(
                 "jfr-perez-review",
             ],
             "en": (
-                "Fear can be one part of my story, especially when a telling "
-                "warns children away from dangerous water or teaches social rules. "
-                "But grief, memory, generosity, migration, and resistance also shape "
-                "how I am remembered. Calling me only a horror monster erases those meanings."
+                "Some versions are meant to frighten people, or warn children "
+                "away from dangerous water. But that's not my whole story. "
+                "Other tellings are about grief, generosity, migration, or "
+                "resistance, so calling me just a monster misses a lot."
             ),
             "es": (
-                "El miedo puede formar parte de mi historia, por ejemplo cuando un "
-                "relato aleja a los niños del agua peligrosa o enseña normas sociales. "
-                "Pero el duelo, la memoria, la generosidad, la migración y la "
-                "resistencia también transforman cómo me recuerdan. Llamarme solo "
-                "monstruo borra esos sentidos."
+                "Algunas versiones buscan dar miedo o alejar a los niños "
+                "del agua peligrosa. Pero mi historia no se queda ahí. "
+                "Otras hablan del duelo, la generosidad, la migración o "
+                "la resistencia; llamarme solo monstruo deja mucho fuera."
             ),
         },
     }
@@ -1185,15 +1209,14 @@ def deterministic_la_llorona_answer(
         return {
             **base,
             "answer": (
-                "I do not have enough approved source material to answer that "
-                "reliably. Ask about regional variants, water, the children, the "
-                "Otomí telling, Guatemala, Chicano retellings, or origin theories."
+                "I'm not sure about that, and I don't have a reliable source "
+                "to answer it. We could talk about the river or a regional "
+                "telling instead."
                 if payload.language == "en"
                 else (
-                    "No tengo suficiente material aprobado para responder con "
-                    "fiabilidad. Pregunta por las variantes regionales, el agua, los "
-                    "niños, la versión otomí, Guatemala, las reinterpretaciones "
-                    "chicanas o las teorías de origen."
+                    "No estoy segura y no tengo una fuente fiable para "
+                    "responderte. Podemos hablar del río o de alguna "
+                    "versión regional."
                 )
             ),
             "topic": "unsupported",

@@ -788,7 +788,13 @@ if (container) {
       if (result.generation_warning) {
         addChatMessage("system", result.generation_warning);
       }
-      chatStatus.textContent = result.sources?.length
+      chatStatus.textContent = generator === "local-conversation"
+        ? (
+          languageSelect.value === "es"
+            ? "Puedes hacerme otra pregunta."
+            : "You can ask me another question."
+        )
+        : result.sources?.length
         ? (
           languageSelect.value === "es"
             ? `${result.sources.length} fuente(s) visible(s) en la respuesta.`

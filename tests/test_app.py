@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from fastapi.testclient import TestClient
 
 import app.main as main
@@ -16,14 +18,38 @@ def test_health_check() -> None:
     assert response.json() == {"status": "ok"}
 
 
-def test_home_page_uses_hadithi_brand() -> None:
+def test_home_page_opens_the_world_portal_directly() -> None:
     response = client.get("/")
 
     assert response.status_code == 200
     assert "Hadithi" in response.text
-    assert "stories that refuse to disappear" in response.text
+    assert 'id="legendScene"' in response.text
+    assert 'id="enterPortal"' in response.text
+    assert "Choose a destination" in response.text
     assert "Luanda Magere" in response.text
     assert "La Llorona" in response.text
+    assert "home-hero" not in response.text
+    assert response.text == client.get("/portal").text
+
+
+def test_about_page_preserves_the_introduction_and_source_navigation() -> None:
+    response = client.get("/about")
+
+    assert response.status_code == 200
+    assert "stories that refuse to disappear" in response.text
+    assert 'href="/portal"' in response.text
+    assert 'href="/legend/luanda-magere"' in response.text
+    assert 'href="/legend/la-llorona"' in response.text
+    assert 'href="/about" data-nav-path="/about">About</a>' in response.text
+
+
+def test_offline_shell_includes_portal_home_and_about_page() -> None:
+    script = (main.BASE_DIR / "static" / "sw.js").read_text(encoding="utf-8")
+    navigation = (main.BASE_DIR / "static" / "app.js").read_text(encoding="utf-8")
+
+    assert 'const CACHE_NAME = "hadithi-legends-v8"' in script
+    assert '"/about"' in script
+    assert 'currentPath === "/" && path === "/portal"' in navigation
 
 
 def test_removed_family_story_routes_are_not_available() -> None:
@@ -214,6 +240,62 @@ def test_characters_handle_short_greetings_and_identity_in_first_person() -> Non
     assert llorona_identity.json()["answer"].startswith("I am La Llorona")
 
 
+@pytest.mark.parametrize(
+    ("question", "language"),
+    [
+        ("Hi, who are you", "en"),
+        ("Hello La Llorona, what's your name?", "en"),
+        ("  HEY,\n who   are you?  ", "en"),
+        ("Hola, ¿quién eres?", "es"),
+        ("Hola La Llorona, ¿cómo te llamas?", "es"),
+    ],
+)
+def test_llorona_identity_accepts_a_greeting_prefix(question, language) -> None:
+    result = main.deterministic_la_llorona_answer(
+        main.LaLloronaQuestionRequest(question=question, language=language)
+    )
+
+    assert result["topic"] == "identity"
+    assert result["generator"] == "local-conversation"
+    assert result["answer"].startswith(
+        "Soy La Llorona" if language == "es" else "I am La Llorona"
+    )
+    assert result["grounded"] is True
+
+
+@pytest.mark.parametrize(
+    ("question", "language"),
+    [
+        ("Hi, who are you", "en"),
+        ("Hello Luanda, what's your name?", "en"),
+        ("Habari, wewe ni nani?", "sw"),
+    ],
+)
+def test_luanda_identity_accepts_a_greeting_prefix(question, language) -> None:
+    result = main.deterministic_luanda_answer(
+        main.LegendQuestionRequest(question=question, language=language)
+    )
+
+    assert result["topic"] == "introduction"
+    assert result["answer"].startswith(
+        "Mimi ni Luanda Magere" if language == "sw" else "I'm Luanda Magere"
+    )
+    assert result["sources"]
+    assert result["grounded"] is True
+
+
+def test_greeting_prefix_does_not_hide_a_topic_or_unsupported_question() -> None:
+    for question, topic in (
+        ("Hi, tell me about the Otomi telling", "otomi"),
+        ("Hi, can you predict tomorrow's lottery numbers?", "unsupported"),
+        ("Hola La Llorona", "greeting"),
+    ):
+        result = main.deterministic_la_llorona_answer(
+            main.LaLloronaQuestionRequest(question=question)
+        )
+        assert result["topic"] == topic
+
+
 def test_la_llorona_endpoint_rejects_unbounded_or_wrong_language_history() -> None:
     excessive_history = [
         {"role": "user", "content": f"Question {index}"}
@@ -301,6 +383,11 @@ def test_la_llorona_generation_uses_only_its_registry_and_validates_sources(
     assert "Luanda Magere" not in prompt
     assert "research_draft_requires_cultural_review" not in prompt
     assert "Otomí" in prompt
+    system_prompt = captured_payload["messages"][0]["content"]
+    assert "plain, everyday language" in system_prompt
+    assert "Do not invent memories" in system_prompt
+    assert "no single universal biography" in system_prompt
+    assert "Use only the approved passages" in system_prompt
 
 
 def test_la_llorona_generation_failure_uses_safe_isolated_fallback(
@@ -424,6 +511,58 @@ def test_cloudflare_legend_request_enables_json_mode(monkeypatch) -> None:
     assert response_format["json_schema"]["strict"] is True
     assert result["generator"] == "@cf/meta/llama-3.2-3b-instruct"
     assert result["grounded"] is True
+    system_prompt = captured_payload["messages"][0]["content"]
+    assert "plain, everyday language" in system_prompt
+    assert "Do not invent memories" in system_prompt
+    assert "never invent details" in system_prompt
+    assert "Use only the approved passages" in system_prompt
+
+
+def test_conversational_greetings_stay_short_in_each_character_language() -> None:
+    for language, greeting in (("en", "Hello."), ("sw", "Habari!")):
+        result = main.deterministic_luanda_answer(
+            main.LegendQuestionRequest(question="Hi", language=language)
+        )
+        assert result["answer"].startswith(greeting)
+        assert len(result["answer"].split()) < 40
+        assert result["generator"] == "local-conversation"
+        assert result["sources"] == []
+
+    for language, greeting in (("en", "Hello."), ("es", "Hola.")):
+        result = main.deterministic_la_llorona_answer(
+            main.LaLloronaQuestionRequest(question="Hi", language=language)
+        )
+        assert result["answer"].startswith(greeting)
+        assert len(result["answer"].split()) < 40
+        assert result["generator"] == "local-conversation"
+        assert result["sources"] == []
+        assert result["review_status"] == "research_draft_requires_cultural_review"
+
+
+def test_casual_llorona_fallbacks_preserve_sources_and_review_status() -> None:
+    sources = main.approved_sources("la_llorona_sources.json")
+    for language in ("en", "es"):
+        for question in (
+            "one true version",
+            "river",
+            "children",
+            "otomi",
+            "guatemala",
+            "chicano",
+            "origin",
+            "horror",
+        ):
+            result = main.deterministic_la_llorona_answer(
+                main.LaLloronaQuestionRequest(question=question, language=language)
+            )
+            assert result["grounded"] is True
+            assert result["generator"] == "verified-fallback"
+            assert result["sources"]
+            assert {source["id"] for source in result["sources"]} <= sources.keys()
+            assert len(result["answer"].split()) < 90
+            assert (
+                result["review_status"] == "research_draft_requires_cultural_review"
+            )
 
 
 def test_legend_guide_falls_back_when_gemma_is_unavailable(monkeypatch) -> None:
