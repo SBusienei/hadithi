@@ -1,0 +1,16 @@
+title: Hadithi
+summary: An immersive, multilingual LLM application for source-grounded conversations with cultural legends, spanning interactive environments, speech transcription and validated citations.
+shows: LLM application design, cultural safeguards, structured output validation, multilingual UX and production deployment.
+tags:
+  - mle
+  - fde
+technologies:
+  - Python
+  - FastAPI
+  - Three.js
+  - Whisper
+  - Cloudflare AI
+code_url: https://github.com/SBusienei/hadithi
+live_url: https://hadithi-zciw.onrender.com/portal
+image: img/articles/hadithi.webp
+image_alt: Hadithi cultural legends experience
